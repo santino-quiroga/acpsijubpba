@@ -1,0 +1,148 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
+}
+
+// ---------- Autenticación ----------
+model Usuario {
+  id                  String    @id @default(cuid())
+  nombre              String
+  usuario             String    @unique // nombre de usuario para login (minúsculas)
+  passwordHash        String
+  activo              Boolean   @default(true)
+  debeCambiarPassword Boolean   @default(true)
+  ultimoAcceso        DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  sesiones            Sesion[]
+  noticias            Noticia[]
+}
+
+model Sesion {
+  id        String   @id // hash SHA-256 del token (el token plano vive solo en la cookie)
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+}
+
+model IntentoLogin {
+  id            String   @id @default(cuid())
+  identificador String // `${usuario}|${ip}`
+  exitoso       Boolean
+  createdAt     DateTime @default(now())
+
+  @@index([identificador, createdAt])
+}
+
+// ---------- Noticias ----------
+enum EstadoNoticia {
+  BORRADOR
+  PUBLICADA
+}
+
+model Noticia {
+  id               String           @id @default(cuid())
+  titulo           String           @db.VarChar(150)
+  slug             String           @unique
+  resumen          String           @db.VarChar(250)
+  contenidoHtml    String           @db.Text // sanitizado al guardar
+  imagenUrl        String?
+  imagenAlt        String?          @db.VarChar(200)
+  estado           EstadoNoticia    @default(BORRADOR)
+  fechaPublicacion DateTime? // se completa al publicar; editable
+  comisionId       String? // categoría opcional
+  comision         ComisionTrabajo? @relation(fields: [comisionId], references: [id], onDelete: SetNull)
+  autorId          String?
+  autor            Usuario?         @relation(fields: [autorId], references: [id], onDelete: SetNull)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@index([estado, fechaPublicacion])
+}
+
+// ---------- Comisión Directiva ----------
+model PeriodoComision {
+  id        String            @id @default(cuid())
+  nombre    String // ej. "2025–2027"
+  vigente   Boolean           @default(false) // solo uno vigente (garantizado por transacción)
+  createdAt DateTime          @default(now())
+  miembros  MiembroComision[]
+}
+
+enum GrupoComision {
+  MESA_DIRECTIVA
+  VOCAL_TITULAR
+  VOCAL_SUPLENTE
+  REVISORA_TITULAR
+  REVISORA_SUPLENTE
+}
+
+enum TituloProfesional {
+  PSIC
+  LIC
+  DR
+  NINGUNO
+}
+
+model MiembroComision {
+  id        String            @id @default(cuid())
+  periodoId String
+  periodo   PeriodoComision   @relation(fields: [periodoId], references: [id], onDelete: Cascade)
+  grupo     GrupoComision
+  cargo     String? // solo para MESA_DIRECTIVA: "Presidenta", "Secretaria", etc.
+  titulo    TituloProfesional @default(PSIC)
+  nombre    String
+  apellido  String
+  fotoUrl   String?
+  orden     Int               @default(0)
+
+  @@index([periodoId, grupo, orden])
+}
+
+// ---------- Comisiones de trabajo ----------
+model ComisionTrabajo {
+  id          String    @id @default(cuid())
+  nombre      String    @db.VarChar(80)
+  descripcion String    @db.VarChar(400)
+  icono       String    @default("users") // nombre de icono lucide de una lista cerrada
+  orden       Int       @default(0)
+  activa      Boolean   @default(true)
+  noticias    Noticia[]
+}
+
+// ---------- Contenido editable (singletons, id = 1) ----------
+model ContenidoInicio {
+  id               Int      @id @default(1)
+  heroTitulo       String   @db.VarChar(120)
+  heroSubtitulo    String   @db.VarChar(250)
+  bienvenidaTitulo String   @db.VarChar(120)
+  bienvenidaTexto  String   @db.Text // HTML sanitizado (mismo editor que noticias)
+  asociarseTitulo  String   @db.VarChar(120)
+  asociarseTexto   String   @db.Text // HTML sanitizado
+  updatedAt        DateTime @updatedAt
+}
+
+model DatosContacto {
+  id              Int      @id @default(1)
+  email           String
+  whatsapp        String? // formato internacional sin símbolos: 5492211234567
+  whatsappMostrar String? // formato legible: "221 123-4567"
+  telefono        String?
+  direccion       String?
+  horarios        String?
+  filialNombre    String?  @default("Filial Mar del Plata")
+  filialDireccion String?
+  filialEmail     String?
+  filialTelefono  String?
+  facebookUrl     String?
+  instagramUrl    String?
+  updatedAt       DateTime @updatedAt
+}

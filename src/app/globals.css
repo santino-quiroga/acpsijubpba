@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Base tipográfica (sección 3.2 del SDD): 18px en móvil, 20px en desktop.
+  Todo lo que use rem (incluida la escala h1/h2/h3/cuerpo/chico de
+  tailwind.config.ts) escala junto con esta base.
+*/
+html {
+  font-size: 18px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 20px;
+  }
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-crema text-texto font-sans text-cuerpo;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Solo modo claro (sección 3.2): no se define esquema oscuro. */
+:root {
+  color-scheme: light;
+}
+
+/* Foco visible en todos los elementos interactivos (sección 3.2). */
+:focus-visible {
+  outline: 3px solid theme("colors.verde.700");
+  outline-offset: 2px;
+}
+
+/* Respeto de prefers-reduced-motion: sin animaciones decorativas. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
