@@ -14,6 +14,7 @@ Versión: 1.0 · Fecha: 15/09/2026 · Destinatario: Claude Code
   - `OBJETIVOS.md` → texto de la página Objetivos.
   - `PRESENTACION_DE_APCPSIJUPBA.md` → texto base para Inicio.
   - `COMISION_DIRECTIVA_ACPSIJUPBA_2025-1.md` → datos del seed de la comisión directiva.
+  - `Requisitos_para_asociarse.md` → requisitos para asociarse, incorporados al bloque "¿Querés asociarte?" de Inicio (secciones 7.2 y 11).
 - Todo el contenido visible del sitio y del panel va **en español (Argentina)**.
 - Trabajar por fases (sección 14). Al terminar cada fase: `npm run lint`, `npm run build` y verificación de los criterios de aceptación.
 - Los ítems marcados como **[PENDIENTE]** (sección 15) se implementan con el valor por defecto indicado y se dejan fáciles de cambiar.
@@ -608,7 +609,7 @@ Tomar los valores exactos con un cuentagotas sobre `docs/logo.png` y ajustarlos 
 | 2 | Turismo | `plane` | Salidas y viajes para disfrutar y fortalecer vínculos entre colegas. |
 | 3 | Temas Legales | `scale` | Seguimiento de la legislación previsional y defensa de los derechos de los jubilados. |
 | 4 | Reconstrucción de la Historia | `book-open` | Recuperación y registro de la historia de la asociación y sus protagonistas. |
-| 5 | Salud y Bienestar | `heart-pulse` | Propuestas para el cuidado integral y la calidad de vida. |
+| 5 | Salud y Buenestar | `heart-pulse` | Propuestas para el cuidado integral y la calidad de vida. |
 
 **ContenidoInicio**
 - `heroTitulo`: "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires"
@@ -616,7 +617,7 @@ Tomar los valores exactos con un cuentagotas sobre `docs/logo.png` y ajustarlos 
 - `bienvenidaTitulo`: "Quiénes somos"
 - `bienvenidaTexto`: texto de `docs/PRESENTACION_DE_APCPSIJUPBA.docx`, en 2–3 párrafos, con las mismas correcciones ortográficas y de redacción que en 7.3/7.4: mayúsculas innecesarias en minúscula ("Nuestro Objetivo" → "nuestro objetivo", "Nuestras Reuniones" → "nuestras reuniones", "Representar a Nuestros asociados" → "representar a nuestros asociados"), y "esto facilitó" con mayúscula inicial tras el punto ("...fuera de la provincia. Esto facilitó...").
 - `asociarseTitulo`: "¿Querés asociarte?"
-- `asociarseTexto`: "Te invitamos a sumarte a la asociación, participar de las reuniones y formar parte de nuestras comisiones. Escribinos y te contamos cómo."
+- `asociarseTexto`: "Te invitamos a sumarte a la asociación, participar de las reuniones y formar parte de nuestras comisiones. Escribinos y te contamos cómo." seguido de los requisitos para asociarse de `docs/Requisitos_para_asociarse.md` (lista, con las mismas correcciones de mayúsculas/redacción que en 7.3/7.4): ser jubilado/a de la Caja de Psicólogos de la Provincia de Buenos Aires; socios adherentes (psicólogos activos que aportan a la Caja y están jubilados en el IPS o en el ANSES); presentar la Ficha de Inscripción, con la opción de debitar la cuota societaria del haber jubilatorio (trámite en La Caja).
 
 **DatosContacto**
 - `email`: `acpsijupba@gmail.com`
@@ -692,10 +693,11 @@ SEED_DEMO=false
 | 2 | WhatsApp, teléfono, dirección, horarios, datos de la filial y redes | Vacíos (se cargan desde el panel) |
 | 3 | Dominio y titularidad de las cuentas (Vercel, Neon, dominio) | A nombre de la asociación |
 | 4 | Fotos de los miembros de la comisión | Avatar con iniciales |
-| 5 | Requisitos o cuota para asociarse (texto del bloque "Asociarse") | Texto genérico de la sección 11 |
+| 5 | ~~Requisitos o cuota para asociarse (texto del bloque "Asociarse")~~ | **Resuelto**: `docs/Requisitos_para_asociarse.md`, incorporado en la sección 11 |
 
 **Confirmado con el cliente:**
 - Nombre oficial: "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires" (sin "de").
 - Apellidos: D'Onofrio y Anasagasti.
 - Ante discrepancias entre los documentos fuente, prevalece la Presentación (`PRESENTACION_DE_APCPSIJUPBA.docx`) — aplicado a la lista de comisiones de trabajo (sección 11).
+- Nombre de la comisión de trabajo: "Salud y Buenestar" (con "u"; confirmado con el cliente que esta es la forma correcta, no "Bienestar").
 - Se aplican correcciones ortográficas y de redacción a los textos transcriptos de Historia, Objetivos y la Bienvenida de Inicio (detalle en 7.3, 7.4 y 11).

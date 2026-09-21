@@ -91,3 +91,196 @@ Falta correr `db:migrate` y `db:seed` (dos veces, para confirmar que no
 duplica) contra una base Postgres real (por ejemplo, una de Neon) antes de dar
 por verificado el criterio de aceptación completo de la sección 14 para esta
 fase.
+
+**Actualización:** en la Fase 2 se conectó una base Neon real (`DATABASE_URL`
+pooled + `DATABASE_URL_UNPOOLED` directa en `.env`, no versionado). Se corrió
+`prisma migrate dev` y `prisma db seed` dos veces seguidas contra esa base: los
+conteos finales fueron los esperados (1 usuario, 1 período, 15 miembros, 5
+comisiones, 1 `ContenidoInicio`, 1 `DatosContacto`, 4 noticias demo), sin
+duplicados. El criterio de aceptación de la Fase 1 queda verificado por
+completo.
+
+## Fase 2 — Sitio público estático
+
+**1. `suppressHydrationWarning` en `<html>` (layout raíz).**
+El control A−/A+ aplica la escala guardada en `localStorage` con un script
+inline en `<head>` que corre antes de la hidratación (para evitar el salto
+visual). Ese script escribe `style="--escala-texto: ..."` directamente sobre
+el `<html>`, el mismo nodo que React hidrata, lo que generaba un warning de
+hydration mismatch (atributo `style` distinto entre servidor y cliente). Es el
+mismo patrón que usan las librerías de dark-mode (ej. `next-themes`) y se
+resuelve de la misma manera: `suppressHydrationWarning` en ese único nodo, sin
+afectar el resto del árbol.
+
+**2. La sección "Últimas noticias" de Inicio (7.2, punto 4) se implementa en
+la Fase 4, no en esta.**
+El modelo `Noticia` ya existe y hay noticias demo en el seed, pero esa sección
+depende del mismo trabajo de Noticias (listado, `/noticias/[slug]`, etc.) que
+la sección 14 asigna explícitamente a la Fase 4. Se prefirió no adelantar esa
+pieza para no duplicar trabajo ni dejar links a `/noticias/[slug]` rotos antes
+de tiempo. El resto de Inicio (hero, bienvenida, comisiones de trabajo,
+asociarte) sí está implementado y lee de la base.
+
+**3. Placeholder en `/noticias`.**
+El header linkea a "Noticias" en las 6 secciones del menú (sección 7.1), así
+que se dejó una página mínima ("en construcción") para que el link no
+devuelva 404 mientras no exista el listado real (Fase 4).
+
+**4. Correcciones menores a Historia y Objetivos que exceden la lista
+explícita del SDD.**
+Además de las correcciones literales de las secciones 7.3/7.4, se corrigieron
+errores mecánicos evidentes del documento original: espacios dobles, un
+guion suelto al final de una oración, paréntesis mal espaciados
+`( 2020/ 2021 )` → `(2020/2021)`, y el typo "con lo mismos" → "con los
+mismos". También se agregó un punto a la abreviatura "Psic" en "la Psic
+Laura Mariani" (Historia) para uniformar con el resto del texto, y una coma
+faltante en Objetivos f) ("culturales, recreativas, sociales y de turismo").
+Ninguno cambia el sentido del texto original.
+
+**5. Reestructuración de los párrafos de Historia en Intro / línea de
+tiempo / logros / cierre.**
+La sección 7.3 pide esa estructura explícitamente. El documento original es
+una serie de párrafos continuos sin esa división, así que el contenido de
+cada párrafo se redistribuyó entre esas secciones (sin agregar información
+nueva): los párrafos sobre la misión y el esfuerzo fundacional van como
+intro; los hitos con fecha (2013, 2014, 25/04/2015, mayo de 2017, 2020–2021)
+arman la línea de tiempo; los ocho logros van en la lista; y la invitación
+final queda como cierre.
+
+**6. Base tipográfica escalable con `--escala-texto`.**
+El control A−/A+ (3 niveles: 100%, 115%, 130%) multiplica, vía variable CSS,
+el `font-size` del `<html>` definido en `tailwind.config.ts`/`globals.css`
+(18px móvil / 20px desktop, sección 3.2). Como toda la escala tipográfica
+(`text-h1`, `text-cuerpo`, etc.) está en `rem`, un solo control escala todo el
+sitio. La preferencia se guarda en `localStorage` y se reaplica antes del
+primer render (ver decisión 1).
+
+**7. Verificación manual en navegador.**
+Se probaron en Chrome (vía la extensión de automatización): Inicio, Historia,
+Objetivos, Comisión Directiva y Contacto con los datos reales del seed; el
+control A−/A+ (incluida la persistencia tras recargar y el estado
+deshabilitado en los extremos); el menú móvil (apertura, cierre con Escape,
+foco en el botón de cerrar); y la ausencia de errores de hidratación en
+consola. No se pudo redimensionar la ventana del navegador a un ancho de
+teléfono real en este entorno (el comando de resize no tuvo efecto), así que
+el menú móvil se verificó forzando su apertura por DOM en lugar de un ancho
+de viewport angosto real; falta una verificación visual en un dispositivo o
+navegador real a 375px.
+
+## Actualización de contenido — Requisitos para asociarse
+
+Se agregó `docs/Requisitos_para_asociarse.md` (material del cliente) y se
+incorporó como lista al final de `asociarseTexto` en `ContenidoInicio`
+(sección 11 del SDD, actualizada; pendiente #5 de la sección 15 pasa a
+resuelto). Se aplicaron las mismas correcciones de redacción que en el resto
+del contenido transcripto: "Pcia. de Bs. As." → "Provincia de Buenos Aires",
+minúsculas en sustantivos genéricos ("jubilados", "haber jubilatorio",
+"cuota societaria"), manteniendo mayúscula en "La Caja" y en "Ficha de
+Inscripción" (nombre de un trámite/formulario específico) y en "Socios
+adherentes" (categoría de socio, se destaca en negrita con `<strong>`, ya
+permitido por la whitelist de sanitización de la sección 8.3).
+
+Como el seed usa `update: {}` para no pisar contenido ya editado desde el
+panel, este cambio no llega solo con `db:seed` a una base que ya tenía el
+`ContenidoInicio` cargado — se actualizó una vez a mano contra la base de
+Neon ya seedeada. Bases nuevas lo obtienen directo del seed actualizado.
+
+Se agregó la clase `.contenido-html` en `globals.css` (con estilos para
+`ul`/`ol`/`li`/`a`) porque hasta ahora el HTML sanitizado de la base solo
+tenía párrafos; con una lista, faltaba el estilo de viñetas y el espaciado
+entre ítems. Esta misma clase se reutiliza para `Noticia.contenidoHtml` en la
+Fase 4, ya que comparte la misma whitelist de tags (sección 8.3).
+
+**Nombre de la comisión "Salud y Buenestar":** en la revisión inicial se
+asumió que "Buenestar" (la forma que aparece en
+`docs/PRESENTACION-DE-APCPSIJUPBA.md`) era un typo de "Bienestar" y así quedó
+en la sección 11 del SDD y en el seed. La asociación confirmó que
+**"Buenestar" es la forma correcta**, no un error. Se corrigió en
+`prisma/seed.ts`, en la sección 11/15 del SDD y se actualizó a mano el
+registro ya existente en la base de Neon (`ComisionTrabajo` con
+`id: "comision-salud-bienestar"`; el `id` no se tocó porque no es visible y
+cambiarlo no aporta nada, solo el campo `nombre`).
+
+## Nota sobre Next.js 16 y Proxy (relevante para la Fase 3)
+
+Next.js 16 (la versión instalada, 16.3.5) renombró `middleware.ts` a
+`proxy.ts`: la convención `middleware` está deprecada desde la v16.0.0. La
+sección 5 del SDD ya anticipaba esta ambigüedad ("`middleware.ts` (o
+`proxy.ts`, según la versión de Next.js)"). Para la Fase 3 se usará
+`src/proxy.ts` exportando una función `proxy()` (no `middleware.ts`), según
+`node_modules/next/dist/docs/01-app/03-api-reference/03-file-conventions/proxy.md`.
+
+## Fase 3 — Autenticación
+
+**1. `src/proxy.ts` valida la sesión contra la base, no solo la presencia de
+la cookie.**
+Antes de Next.js 16, `middleware.ts` corría en el runtime de Edge, donde usar
+Prisma no era viable, así que muchos proyectos solo revisaban si la cookie
+existía. Desde la v16, `proxy.ts` corre por defecto en el runtime de Node.js
+(confirmado en la documentación empaquetada), así que sí puede hacer la
+consulta real a `Sesion`/`Usuario` y redirigir de una sola vez a `/ingresar`
+si el token es inválido o venció. Esto es una capa adicional, no un
+reemplazo: cada Server Action sigue llamando a `requireAdmin()` igual
+(sección 5, "nunca se confía solo en el middleware").
+
+**2. El redirect por `debeCambiarPassword` (primer ingreso) vive en
+`proxy.ts`, no en `admin/layout.tsx`.**
+Ese redirect necesita saber la ruta pedida (para no redirigir en bucle
+cuando ya se está en `/admin/mi-cuenta`), y un layout de Server Component no
+tiene una forma simple de leer el pathname actual sin pasar por trucos. En
+`proxy.ts` el pathname está disponible directamente (`request.nextUrl.pathname`)
+y ya se está consultando el usuario para validar la sesión, así que no hay
+consulta extra. `admin/layout.tsx` sigue llamando a `requireAdmin()` de forma
+independiente (defensa en profundidad).
+
+**3. Contenido mínimo de `/admin` y `/admin/mi-cuenta` en esta fase.**
+La sección 14 asigna el resto del panel (Escritorio con resumen, Comisión
+Directiva, Comisiones de trabajo, Textos de Inicio, Datos de contacto,
+Usuarios) a la Fase 5, y Noticias a la Fase 4. Pero el flujo de autenticación
+de la sección 9.1 exige que exista *algo* en `/admin` (destino del login) y
+que `/admin/mi-cuenta` soporte cambiar la contraseña (paso obligatorio del
+primer ingreso). Se implementaron versiones mínimas de ambas páginas —
+saludo simple en Escritorio, y solo el formulario de "Cambiar contraseña" en
+Mi cuenta (sin "Cambiar nombre", que se agrega en la Fase 5 junto con el
+resto del panel)— y un menú lateral con únicamente esos dos ítems; los demás
+se van agregando a `ITEMS_MENU` en `admin/layout.tsx` a medida que sus
+páginas existan.
+
+**4. Contraseña temporal legible en su propio archivo
+(`src/lib/password-temporal.ts`).**
+`scripts/crear-admin.ts` corre con `tsx` fuera del runtime de Next.js (es un
+script de Node normal), así que no puede importar `src/lib/auth.ts`: ese
+archivo importa `next/headers` y `next/navigation`, que solo funcionan
+dentro de una request de Next. El generador de contraseña temporal
+(`generarPasswordTemporal`, sección 8.8) no depende de nada de Next, así que
+se separó a su propio archivo, usado tanto por el script CLI como por
+`src/lib/auth.ts` (re-exportado desde ahí para no romper otros imports).
+
+**5. `secure` de la cookie de sesión depende de `NODE_ENV`.**
+La sección 9.2 pide `secure` en la cookie `acp_sesion`. En desarrollo local
+(HTTP, sin TLS) una cookie `secure` no se guarda en el navegador, lo que
+rompería el login en `localhost`. Se usa
+`secure: process.env.NODE_ENV === "production"`, el patrón estándar de
+Next.js/Vercel: en producción (HTTPS) queda igual que pide el SDD.
+
+**6. Verificación real contra la base de Neon.**
+Se probó el flujo completo en el navegador: `/admin` sin sesión redirige a
+`/ingresar`; login con credenciales incorrectas muestra el error genérico;
+se confirmó con una prueba directa sobre `estaBloqueado()`/`registrarIntento()`
+que el 6.º intento fallido en 15 minutos queda bloqueado (la reproducción
+manual en el navegador para llegar exactamente a 5 fallos previos resultó
+poco confiable por limitaciones del entorno de automatización con la tecla
+Tab, así que se confirmó también con una prueba directa contra la base,
+además de los intentos manuales reales registrados); login correcto con
+`debeCambiarPassword = true` redirige a `/admin/mi-cuenta?primer-ingreso=1` y
+bloquea el resto del panel hasta cambiar la contraseña; el cambio de
+contraseña funciona y libera el panel; "Cerrar sesión" borra el registro de
+`Sesion` en la base (confirmado con una consulta directa: 0 sesiones después
+del logout) y no solo la cookie. También se probaron `npm run admin:crear` y
+`npm run admin:reset` contra la base real.
+
+Como parte de esta prueba se cambió la contraseña real del usuario `admin`
+sembrado por el seed. Se restableció con `npm run admin:reset -- --usuario
+admin` para dejarlo en un estado limpio (contraseña temporal nueva,
+`debeCambiarPassword = true`) — la contraseña temporal quedó únicamente en la
+terminal de esa corrida, no se guardó en ningún archivo.

@@ -1,0 +1,73 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { requireAdmin } from "@/lib/auth";
+import { cerrarSesionAction } from "@/actions/auth";
+
+export const metadata: Metadata = {
+  title: "Panel de administración",
+  robots: { index: false, follow: false },
+};
+
+// Menú lateral: por ahora solo las páginas que ya existen (Fase 3). Noticias
+// se agrega en la Fase 4; Comisión Directiva, Comisiones de trabajo, Textos
+// de Inicio, Datos de contacto y Usuarios se agregan en la Fase 5.
+const ITEMS_MENU = [
+  { href: "/admin", label: "Escritorio" },
+  { href: "/admin/mi-cuenta", label: "Mi cuenta" },
+];
+
+export default async function LayoutAdmin({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const usuario = await requireAdmin();
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-tierra-100 bg-crema px-4 py-3 md:px-6">
+        <span className="font-display text-lg font-bold text-verde-900">
+          Panel de administración
+        </span>
+        <div className="flex items-center gap-4 text-cuerpo">
+          <span className="text-texto-suave">Hola, {usuario.nombre}</span>
+          <a
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-verde-900 underline"
+          >
+            Ver sitio
+          </a>
+          <form action={cerrarSesionAction}>
+            <button
+              type="submit"
+              className="min-h-boton rounded-boton border-2 border-verde-900 px-4 font-bold text-verde-900"
+            >
+              Cerrar sesión
+            </button>
+          </form>
+        </div>
+      </header>
+
+      <div className="flex flex-1 flex-col md:flex-row">
+        <nav
+          aria-label="Panel"
+          className="flex gap-2 overflow-x-auto border-b border-tierra-100 bg-tierra-100/30 px-4 py-3 md:w-56 md:flex-col md:overflow-visible md:border-b-0 md:border-r md:px-4 md:py-6"
+        >
+          {ITEMS_MENU.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="whitespace-nowrap rounded-boton px-3 py-2 font-bold text-texto hover:bg-verde-100 hover:text-verde-900"
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+
+        <main className="flex-1 px-4 py-8 md:px-8">{children}</main>
+      </div>
+    </div>
+  );
+}

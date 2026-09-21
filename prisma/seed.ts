@@ -129,7 +129,7 @@ async function seedComisionesTrabajo() {
     },
     {
       id: "comision-salud-bienestar",
-      nombre: "Salud y Bienestar",
+      nombre: "Salud y Buenestar",
       icono: "heart-pulse",
       orden: 5,
       descripcion: "Propuestas para el cuidado integral y la calidad de vida.",
@@ -164,7 +164,13 @@ async function seedContenidoInicio() {
         "<p>Utilizamos diversos medios para comunicarnos: Meet para reuniones a distancia, grupos de WhatsApp, etc. Realizamos encuentros para celebrar nuestro día, para finalizar el año y en las salidas de turismo, entre otros.</p>",
       asociarseTitulo: "¿Querés asociarte?",
       asociarseTexto:
-        "<p>Te invitamos a sumarte a la asociación, participar de las reuniones y formar parte de nuestras comisiones. Escribinos y te contamos cómo.</p>",
+        "<p>Te invitamos a sumarte a la asociación, participar de las reuniones y formar parte de nuestras comisiones. Escribinos y te contamos cómo.</p>" +
+        "<p>Requisitos para asociarse:</p>" +
+        "<ul>" +
+        "<li>Ser jubilado o jubilada de la Caja de Psicólogos de la Provincia de Buenos Aires.</li>" +
+        "<li><strong>Socios adherentes:</strong> psicólogos activos que aportan a la Caja y están jubilados en el IPS o en el ANSES.</li>" +
+        "<li>Presentar la Ficha de Inscripción. Quienes estén de acuerdo pueden optar por que la cuota societaria se les debite del haber jubilatorio, un trámite que se realiza en La Caja.</li>" +
+        "</ul>",
     },
   });
 

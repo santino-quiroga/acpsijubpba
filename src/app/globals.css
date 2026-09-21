@@ -5,15 +5,20 @@
 /*
   Base tipográfica (sección 3.2 del SDD): 18px en móvil, 20px en desktop.
   Todo lo que use rem (incluida la escala h1/h2/h3/cuerpo/chico de
-  tailwind.config.ts) escala junto con esta base.
+  tailwind.config.ts) escala junto con esta base. `--escala-texto` la
+  multiplica el control A−/A+ del header (3 niveles, ControlTipografia.tsx).
 */
+:root {
+  --escala-texto: 1;
+}
+
 html {
-  font-size: 18px;
+  font-size: calc(18px * var(--escala-texto));
 }
 
 @media (min-width: 768px) {
   html {
-    font-size: 20px;
+    font-size: calc(20px * var(--escala-texto));
   }
 }
 
@@ -40,6 +45,39 @@ body {
 :focus-visible {
   outline: 3px solid theme("colors.verde.700");
   outline-offset: 2px;
+}
+
+/*
+  Estilos para el HTML sanitizado que viene de la base (bienvenidaTexto,
+  asociarseTexto y, en la Fase 4, Noticia.contenidoHtml). La whitelist del
+  sanitizador (sección 8.3) permite p, h2, strong, em, ul, ol, li, a y br.
+*/
+.contenido-html {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contenido-html ul,
+.contenido-html ol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-left: 1.5em;
+}
+
+.contenido-html ul {
+  list-style-type: disc;
+}
+
+.contenido-html ol {
+  list-style-type: decimal;
+}
+
+.contenido-html a {
+  font-weight: 700;
+  color: theme("colors.verde.900");
+  text-decoration: underline;
 }
 
 /* Respeto de prefers-reduced-motion: sin animaciones decorativas. */
