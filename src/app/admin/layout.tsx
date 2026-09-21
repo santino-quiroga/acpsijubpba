@@ -8,11 +8,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-// Menú lateral: por ahora solo las páginas que ya existen (Fase 3). Noticias
-// se agrega en la Fase 4; Comisión Directiva, Comisiones de trabajo, Textos
-// de Inicio, Datos de contacto y Usuarios se agregan en la Fase 5.
+// Menú lateral: por ahora solo las páginas que ya existen. Comisión
+// Directiva, Comisiones de trabajo, Textos de Inicio, Datos de contacto y
+// Usuarios se agregan en la Fase 5.
 const ITEMS_MENU = [
   { href: "/admin", label: "Escritorio" },
+  { href: "/admin/noticias", label: "Noticias" },
   { href: "/admin/mi-cuenta", label: "Mi cuenta" },
 ];
 

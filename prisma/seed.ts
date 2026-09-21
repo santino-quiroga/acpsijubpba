@@ -1,5 +1,6 @@
 import { PrismaClient, GrupoComision, TituloProfesional } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { crearFechaDesdeInputArgentina } from "../src/lib/formato";
 
 /**
  * Seed idempotente (sección 11 del SDD): usa upsert con ids fijos para el
@@ -210,7 +211,7 @@ async function seedNoticiasDemo() {
       contenidoHtml:
         "<p>Este es un contenido de ejemplo para desarrollo, generado por el seed con SEED_DEMO=true.</p>",
       comisionId: cultura?.id ?? null,
-      fechaPublicacion: new Date("2026-03-10"),
+      fechaPublicacion: crearFechaDesdeInputArgentina("2026-03-10"),
     },
     {
       id: "demo-noticia-viaje-tandil",
@@ -221,7 +222,7 @@ async function seedNoticiasDemo() {
       contenidoHtml:
         "<p>Este es un contenido de ejemplo para desarrollo, generado por el seed con SEED_DEMO=true.</p>",
       comisionId: turismo?.id ?? null,
-      fechaPublicacion: new Date("2026-04-02"),
+      fechaPublicacion: crearFechaDesdeInputArgentina("2026-04-02"),
     },
     {
       id: "demo-noticia-asamblea-anual",
@@ -232,7 +233,7 @@ async function seedNoticiasDemo() {
       contenidoHtml:
         "<p>Este es un contenido de ejemplo para desarrollo, generado por el seed con SEED_DEMO=true.</p>",
       comisionId: null,
-      fechaPublicacion: new Date("2026-05-15"),
+      fechaPublicacion: crearFechaDesdeInputArgentina("2026-05-15"),
     },
     {
       id: "demo-noticia-taller-cultura",
@@ -243,7 +244,7 @@ async function seedNoticiasDemo() {
       contenidoHtml:
         "<p>Este es un contenido de ejemplo para desarrollo, generado por el seed con SEED_DEMO=true.</p>",
       comisionId: cultura?.id ?? null,
-      fechaPublicacion: new Date("2026-06-01"),
+      fechaPublicacion: crearFechaDesdeInputArgentina("2026-06-01"),
     },
   ];
 

@@ -284,3 +284,102 @@ sembrado por el seed. Se restableció con `npm run admin:reset -- --usuario
 admin` para dejarlo en un estado limpio (contraseña temporal nueva,
 `debeCambiarPassword = true`) — la contraseña temporal quedó únicamente en la
 terminal de esa corrida, no se guardó en ningún archivo.
+
+## Fase 4 — Noticias
+
+**1. "Próximas actividades" / "Actividades realizadas" en vez del listado
+único de la sección 7.6 original.**
+Pedido explícito de la asociación durante esta fase: van a usar Noticias para
+avisar actividades futuras ("el próximo 2 de octubre visitaremos...") y para
+dejar registro de las ya hechas. Se resolvió sin tocar el modelo `Noticia` ni
+reabrir la "agenda de eventos" que la sección 2.2 deja fuera de alcance:
+`fechaPublicacion` >= hoy (hora Argentina) es "próxima"; antes de hoy es
+"realizada". Ver sección 7.6 y 2.2 del SDD, ya actualizadas.
+
+**2. Sin carruseles, aunque el pedido original los sugería.**
+La sección 3.2 prohíbe carruseles automáticos por accesibilidad (el público
+son personas +65; los carruseles son un problema conocido para navegación
+por teclado, lectores de pantalla y timing de lectura). Se lo planteé
+directamente a la asociación antes de implementar y acordamos grillas fijas
+con paginación (mismo patrón que ya existía para el listado general de
+Noticias) en vez de carrusel. Con eso alcanza para no acumular una lista
+larga incómoda: cada sección muestra solo unas pocas tarjetas con un botón
+"Ver todas".
+
+**3. `/noticias/proximas` y `/noticias/realizadas` en vez de mantener
+`/noticias` como el único listado paginado.**
+Como `/noticias` ahora es una página de resumen (con las dos secciones), la
+grilla completa paginada + filtro por comisión de la sección 7.6 original se
+movió a estas dos rutas nuevas. Es la forma más simple de no perder esa
+funcionalidad ya definida sin forzarla dentro de la página de resumen.
+
+**4. Filtro por comisión usa `id`, no un `slug`.**
+La sección 7.6 describe el filtro como `?comision=slug`, pero `ComisionTrabajo`
+(sección 6) no tiene un campo `slug`. Se usa directamente su `id` (un cuid,
+no legible) como valor del parámetro. Agregar un campo `slug` no pedido
+habría sido una modificación de schema no solicitada; usar el `id` es la
+opción más simple y ya deja el filtro funcionando.
+
+**5. Bug real encontrado y corregido: la fecha se guardaba con un día de
+menos.**
+Al guardar `fechaPublicacion` con `new Date("2026-10-02")`, JavaScript lo
+interpreta como medianoche UTC. Al mostrarlo con
+`timeZone: "America/Argentina/Buenos_Aires"` (UTC-3), esa medianoche UTC cae
+en el día anterior en hora argentina — la noticia del "2 de octubre" se
+mostraba como "1 de octubre". Se agregó `crearFechaDesdeInputArgentina()` en
+`src/lib/formato.ts`, que arma el instante UTC correspondiente al mediodía
+argentino de la fecha elegida (nunca cruza el límite del día en ninguna
+zona horaria razonable). Se corrigió `src/actions/noticias.ts`, `prisma/seed.ts`
+y se actualizaron a mano las fechas ya guardadas en la base de Neon.
+
+**6. Bug real encontrado y corregido: `<form>` anidado dentro de otro
+`<form>`.**
+`FormularioNoticia` tenía los botones "Despublicar" y "Eliminar" (cada uno su
+propio `<form>`, porque llaman a una Server Action distinta a la del
+formulario principal) dentro del `<form>` principal. Es HTML inválido — el
+navegador corrige la anidación al parsear, lo que rompía el envío de esos
+botones (no llegaba ningún POST al servidor) y además generaba un error de
+hidratación en consola. Se solucionó sacando esos dos botones fuera del
+`<form>` principal, como hermanos en el mismo contenedor visual. Confirmado
+con una prueba real: antes del fix, "Despublicar" no cambiaba el estado en la
+base; después del fix, sí (verificado con una consulta directa).
+
+**7. Bug real encontrado y corregido: el botón "Eliminar" del modal de
+confirmación salía verde en vez de rojo.**
+`ConfirmacionEliminar` reusaba el componente `<Boton>` e intentaba pisar sus
+clases de color (`bg-verde-900`) agregando `bg-error` en el `className`. En
+Tailwind, dos clases de utilidad para la misma propiedad no se "pisan" según
+el orden en que aparecen en el string de `className`, sino según el orden en
+que Tailwind las generó en la hoja de estilos — por eso `bg-verde-900` seguía
+ganando. Se cambió por un `<button>` propio con las clases rojas directas, sin
+depender de `<Boton>` para este caso.
+
+**8. Verificación de la sanitización de HTML.**
+El editor Tiptap no puede producir un `<script>` a través de su interfaz (su
+esquema de documento no tiene ese nodo), así que probar "meter un script
+desde la UI" no prueba nada nuevo. Se probó directamente la función
+`sanitizarContenidoNoticia()` con un payload que incluye `<script>`, atributos
+`onclick`/`onerror`, un link `javascript:` y tags fuera de la whitelist
+(`<h1>`, `<blockquote>`): todo se elimina o se limpia correctamente (los tags
+no permitidos se sacan pero conservan su texto; los `<a>` conservan `href`
+solo si es http/https/mailto, con `target="_blank" rel="noopener noreferrer"`
+agregado automáticamente).
+
+**9. Falta probar la subida de imágenes con Vercel Blob real.**
+No se recibió un `BLOB_READ_WRITE_TOKEN` real en esta sesión. El código de
+subida (`src/actions/blob.ts`, `CampoImagen.tsx`) está escrito según la
+sección 8.3/9.5 (compresión cliente a ~500KB/1600px WebP, validación de MIME
+y tamaño en el servidor, nombre de archivo aleatorio, borrado del Blob al
+reemplazar o eliminar una noticia), y compila y tipa correctamente, pero no
+se pudo ejercitar el flujo end-to-end de subida real. Falta esa prueba en
+cuanto se tenga el token.
+
+**10. Advertencia de consola pendiente para la Fase 6 (no bloquea esta
+fase): "script tag" al navegar a un 404.**
+El script anti-parpadeo del control de tipografía (`src/app/layout.tsx`, ver
+Fase 2) es un `<script>` literal en el JSX del layout raíz. Al navegar a una
+ruta que no existe, Next remonta esa parte del árbol en el cliente, y React
+avisa que un `<script>` dentro de un componente no se ejecuta en un
+re-render de cliente. No rompe nada (el script ya corrió una vez en la carga
+inicial) y es un warning de desarrollo, no un error de build. Se revisa junto
+con el `not-found.tsx` propio de la sección 7.9 en la Fase 6.

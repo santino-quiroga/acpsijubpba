@@ -4,16 +4,18 @@ import {
   obtenerContenidoInicio,
   obtenerDatosContacto,
 } from "@/lib/contenido";
+import { obtenerUltimasNoticias } from "@/lib/noticias";
 import { obtenerIconoComision } from "@/lib/iconos-comisiones";
 import { BotonLink } from "@/components/ui/Boton";
+import { TarjetaNoticia } from "@/components/publico/TarjetaNoticia";
 
-// Página de Inicio (sección 7.2 del SDD). La sección "Últimas noticias" se
-// implementa junto con el resto de Noticias en la Fase 4 (ver DECISIONES.md).
+// Página de Inicio (sección 7.2 del SDD).
 export default async function PaginaInicio() {
-  const [contenido, comisiones, datosContacto] = await Promise.all([
+  const [contenido, comisiones, datosContacto, ultimasNoticias] = await Promise.all([
     obtenerContenidoInicio(),
     obtenerComisionesActivas(),
     obtenerDatosContacto(),
+    obtenerUltimasNoticias(),
   ]);
 
   return (
@@ -84,6 +86,24 @@ export default async function PaginaInicio() {
                 );
               })}
             </ul>
+          </div>
+        </section>
+      )}
+
+      {ultimasNoticias.length > 0 && (
+        <section className="mx-auto w-full max-w-5xl px-4 py-14 md:px-6">
+          <h2 className="text-center font-display text-h2 font-bold text-verde-900">
+            Últimas noticias
+          </h2>
+          <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {ultimasNoticias.map((noticia) => (
+              <TarjetaNoticia key={noticia.id} noticia={noticia} />
+            ))}
+          </ul>
+          <div className="mt-8 flex justify-center">
+            <BotonLink href="/noticias" variante="secundario">
+              Ver todas las noticias
+            </BotonLink>
           </div>
         </section>
       )}

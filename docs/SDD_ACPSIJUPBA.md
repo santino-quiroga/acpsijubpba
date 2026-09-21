@@ -47,7 +47,10 @@ Existe un único rol: **administrador**.
 
 ### 2.2 Fuera de alcance (v2 o posterior)
 - Formulario de contacto o de asociación (Contacto muestra **solo datos**).
-- Agenda de actividades o eventos.
+- Agenda de actividades o eventos como modelo de datos propio (con fecha de
+  inicio/fin, lugar, etc.) y su propio CRUD. La separación de Noticias en
+  "Próximas actividades" / "Actividades realizadas" (sección 7.6) no es esto:
+  reutiliza el modelo `Noticia` ya existente, agrupado por `fechaPublicacion`.
 - Galería de fotos.
 - Área privada para socios.
 - Newsletter.
@@ -389,10 +392,16 @@ Secciones en este orden:
 - Si no hay período vigente, mostrar "Información próximamente disponible".
 
 ### 7.6 Noticias `/noticias`
-- Grilla de tarjetas (1 columna en móvil, 2 en tablet y 3 en desktop): imagen, fecha ("15 de septiembre de 2026"), categoría (si tiene), título, resumen y "Leer noticia completa".
-- Paginación de 9 por página con `?pagina=N`, usando botones grandes "Anteriores" / "Más recientes" y el número de página.
-- Filtro opcional por comisión (`?comision=slug`) con chips simples.
-- Solo se listan las noticias con `estado = PUBLICADA`, ordenadas por `fechaPublicacion` descendente.
+**Actualizado a pedido de la asociación** (ver `docs/DECISIONES.md`, Fase 4):
+la sección se divide en dos, sin usar carruseles (prohibidos por la sección
+3.2 para este público). No se agrega un modelo de "actividad/evento" nuevo
+(la sección 2.2 deja eso fuera de alcance): se reutiliza `Noticia` con su
+`fechaPublicacion`, comparada contra "hoy" en hora Argentina.
+
+- **`/noticias`**: dos secciones apiladas, "Próximas actividades" (`fechaPublicacion` de hoy en adelante, orden ascendente) y "Actividades realizadas" (`fechaPublicacion` pasada, orden descendente). Cada una muestra una vista previa acotada (grilla de tarjetas: imagen, fecha, categoría si tiene, título, resumen y "Leer noticia completa") con un botón "Ver todas las próximas actividades" / "Ver todas las actividades realizadas".
+- **`/noticias/proximas`** y **`/noticias/realizadas`**: la grilla completa de cada grupo, paginada de 9 por página con `?pagina=N` (botones grandes "Anteriores" / "Más recientes" y el número de página) y con filtro opcional por comisión (`?comision=<id>` — `ComisionTrabajo` no tiene un campo `slug` en la sección 6, así que el filtro usa directamente su `id`) con chips simples.
+- En ambos casos, solo se listan las noticias con `estado = PUBLICADA`.
+- La sección "Últimas noticias" de Inicio (7.2) no distingue próximas/realizadas: siempre son las 3 últimas por `fechaPublicacion`, como estaba definido.
 
 ### 7.7 Detalle de noticia `/noticias/[slug]`
 - Título, fecha, categoría, imagen de portada y contenido.
