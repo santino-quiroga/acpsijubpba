@@ -1,12 +1,13 @@
+import { requireAdmin } from "@/lib/auth";
 import { FormularioCambiarPassword } from "@/components/admin/FormularioCambiarPassword";
+import { FormularioCambiarNombre } from "@/components/admin/FormularioCambiarNombre";
 
-// Cambiar nombre (sección 8.9) se agrega en la Fase 5. Por ahora solo el
-// cambio de contraseña, necesario para el flujo de primer ingreso (9.1).
 export default async function PaginaMiCuenta({
   searchParams,
 }: {
   searchParams: Promise<{ [clave: string]: string | string[] | undefined }>;
 }) {
+  const usuario = await requireAdmin();
   const parametros = await searchParams;
   const esPrimerIngreso = parametros["primer-ingreso"] === "1";
 
@@ -24,6 +25,15 @@ export default async function PaginaMiCuenta({
       )}
 
       <div className="mt-6">
+        <h2 className="font-display text-h3 font-bold text-texto">
+          Cambiar nombre
+        </h2>
+        <div className="mt-4">
+          <FormularioCambiarNombre nombreActual={usuario.nombre} />
+        </div>
+      </div>
+
+      <div className="mt-10">
         <h2 className="font-display text-h3 font-bold text-texto">
           Cambiar contraseña
         </h2>

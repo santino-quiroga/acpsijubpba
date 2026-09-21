@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Suspense } from "react";
 import { requireAdmin } from "@/lib/auth";
 import { cerrarSesionAction } from "@/actions/auth";
+import { Toaster } from "@/components/admin/Toaster";
 
 export const metadata: Metadata = {
   title: "Panel de administración",
   robots: { index: false, follow: false },
 };
 
-// Menú lateral: por ahora solo las páginas que ya existen. Comisión
-// Directiva, Comisiones de trabajo, Textos de Inicio, Datos de contacto y
-// Usuarios se agregan en la Fase 5.
+// Menú lateral (sección 8.1), en el mismo orden que la sección 8.
 const ITEMS_MENU = [
   { href: "/admin", label: "Escritorio" },
   { href: "/admin/noticias", label: "Noticias" },
+  { href: "/admin/comision-directiva", label: "Comisión Directiva" },
+  { href: "/admin/comisiones", label: "Comisiones de trabajo" },
+  { href: "/admin/inicio", label: "Textos de Inicio" },
+  { href: "/admin/contacto", label: "Datos de contacto" },
+  { href: "/admin/usuarios", label: "Usuarios" },
   { href: "/admin/mi-cuenta", label: "Mi cuenta" },
 ];
 
@@ -69,6 +74,10 @@ export default async function LayoutAdmin({
 
         <main className="flex-1 px-4 py-8 md:px-8">{children}</main>
       </div>
+
+      <Suspense fallback={null}>
+        <Toaster />
+      </Suspense>
     </div>
   );
 }

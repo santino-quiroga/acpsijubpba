@@ -383,3 +383,67 @@ avisa que un `<script>` dentro de un componente no se ejecuta en un
 re-render de cliente. No rompe nada (el script ya corrió una vez en la carga
 inicial) y es un warning de desarrollo, no un error de build. Se revisa junto
 con el `not-found.tsx` propio de la sección 7.9 en la Fase 6.
+
+## Fase 5 — Resto del panel
+
+**1. Toasts vía parámetro de URL (`?aviso=...&tipo=exito|error`).**
+La sección 8.1 pide notificaciones tipo toast que duren al menos 6 segundos
+y se puedan cerrar. Como casi todas las acciones de esta fase terminan en un
+`redirect()` desde el servidor (una navegación real, no una actualización en
+el mismo render), no hay forma directa de "pasarle" un mensaje al componente
+cliente que va a mostrar el toast. La solución más simple: las Server Actions
+redirigen a `conAviso(ruta, "mensaje", "exito" | "error")`
+(`src/lib/aviso.ts`), que agrega esos dos parámetros a la URL; un componente
+`<Toaster />` en `admin/layout.tsx` los lee al montar, muestra el toast,
+limpia la URL con `router.replace` (para que no reaparezca al recargar o
+volver atrás) y se cierra solo a los 6,5 segundos o con el botón de cerrar.
+
+**2. Normalización de WhatsApp: cubre los casos más comunes, no todos.**
+`src/lib/whatsapp.ts` (`normalizarWhatsapp`) saca el "0" de larga distancia,
+el "54" y el "9" si ya están, y un "15" si aparece justo al principio. No
+detecta un "15" que aparezca después del código de área sin un "0" inicial
+(ej. "0221 15-123-4567"): separar eso a mano requeriría una tabla de códigos
+de área argentinos, que no está pedida y sería una complejidad nueva no
+solicitada. Se probó a mano con ese caso exactamente y confirmó el límite: el
+enlace generado queda mal armado. Por eso el campo siempre muestra el link
+"Probar enlace" ya armado (sección 8.7): la asociación puede notar si el
+enlace no abre el chat correcto y volver a escribir el número de otra forma
+(por ejemplo, sin el "15", que alcanza para el formato de WhatsApp). Con
+entradas simples ("221 123-4567") o ya en formato internacional
+("+54 9 221 123-4567") el resultado es correcto — ambos casos se probaron
+contra la base real.
+
+**3. Botón "Eliminar período" agregado (no está en la lista de la sección
+8.4, pero la regla de negocio de la sección 6 lo implica).**
+"No se puede eliminar el período vigente" no tiene sentido si no hay ninguna
+forma de eliminar un período. Se agregó el botón, habilitado solo cuando el
+período que se está viendo no es el vigente (y se probó: intentar eliminar
+el vigente está bloqueado por la Server Action, aparte de que el botón ni se
+muestra).
+
+**4. Al copiar miembros a un período nuevo, no se copia la foto.**
+Si dos `MiembroComision` compartieran la misma `fotoUrl` (por copiar el
+período con sus fotos), eliminar uno de los dos borraría el archivo de Blob
+del otro también, porque `eliminarMiembro` borra el archivo al borrar el
+registro. La opción más simple y segura: la copia no incluye `fotoUrl`
+(queda `null`), así cada miembro tiene como máximo una foto propia y
+borrarla nunca afecta a otro. Se probó: crear un período nuevo copiando
+miembros del vigente, reordenar y eliminarlo (con sus 16 miembros, cascada
+por `onDelete: Cascade` del schema) sin tocar los miembros del período
+original.
+
+**5. `CampoFoto` (miembros) es más simple que `CampoImagen` (noticias).**
+La foto de un miembro es opcional y no tiene requisito de texto alternativo
+(esa regla es específica de las noticias, sección 8.3). Se creó un
+componente separado en vez de generalizar `CampoImagen` con props opcionales,
+para no complicar ese componente con casos que no le corresponden. Ambos
+reusan las mismas Server Actions de subida/borrado a Vercel Blob
+(`src/actions/blob.ts`).
+
+**6. Sigue sin probarse la subida real de fotos/imágenes.**
+No se recibió un `BLOB_READ_WRITE_TOKEN` real en ninguna fase. Todo lo demás
+de Comisión Directiva, Comisiones de trabajo, Usuarios, Textos de Inicio y
+Datos de contacto se probó de punta a punta contra la base de Neon real
+(crear, editar, reordenar, marcar vigente, eliminar con sus reglas de
+negocio, protección del último administrador activo, revalidación del sitio
+público sin redeploy).

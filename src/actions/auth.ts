@@ -12,13 +12,14 @@ import {
   verificarPassword,
 } from "@/lib/auth";
 import { obtenerIp } from "@/lib/ip";
+import { conAviso } from "@/lib/aviso";
 import {
   construirIdentificador,
   estaBloqueado,
   limpiarIntentosViejos,
   registrarIntento,
 } from "@/lib/rate-limit";
-import { esquemaCambiarPassword, esquemaLogin } from "@/lib/validations/auth";
+import { esquemaCambiarNombre, esquemaCambiarPassword, esquemaLogin } from "@/lib/validations/auth";
 
 export type ResultadoAccion = { error: string } | undefined;
 
@@ -114,4 +115,23 @@ export async function cambiarPasswordPropia(
   await cerrarSesionesDeUsuario(usuario.id, { exceptoTokenActual: true });
 
   redirect("/admin");
+}
+
+export async function cambiarNombrePropio(
+  _estadoPrevio: ResultadoAccion,
+  formData: FormData,
+): Promise<ResultadoAccion> {
+  const usuarioSesion = await requireAdmin();
+
+  const datos = esquemaCambiarNombre.safeParse({ nombre: formData.get("nombre") });
+  if (!datos.success) {
+    return { error: datos.error.issues[0]?.message ?? "Revisá el nombre ingresado." };
+  }
+
+  await db.usuario.update({
+    where: { id: usuarioSesion.id },
+    data: { nombre: datos.data.nombre },
+  });
+
+  redirect(conAviso("/admin/mi-cuenta", "Nombre actualizado."));
 }

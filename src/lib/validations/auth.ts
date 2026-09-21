@@ -4,6 +4,10 @@ import { z } from "zod";
 // símbolos, para facilitar el uso por el público objetivo.
 export const PASSWORD_MIN = 10;
 
+export const esquemaCambiarNombre = z.object({
+  nombre: z.string().trim().min(1, "Ingresá tu nombre."),
+});
+
 export const esquemaLogin = z.object({
   usuario: z.string().trim().min(1, "Ingresá tu usuario."),
   password: z.string().min(1, "Ingresá tu contraseña."),

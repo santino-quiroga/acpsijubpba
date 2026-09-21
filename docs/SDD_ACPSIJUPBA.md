@@ -480,7 +480,10 @@ Solo muestra datos, **sin formulario**.
   - Editar y Eliminar.
   - "+ Agregar miembro a este grupo".
 - Formulario de miembro: grupo, cargo (texto libre con sugerencias: Presidenta/e, Vicepresidenta/e, Secretaria/o, Prosecretaria/o, Tesorera/o, Protesorera/o), título, nombre, apellido y foto opcional.
-- No se puede eliminar el período vigente.
+- No se puede eliminar el período vigente. Se agregó un botón "Eliminar período"
+  (no listado explícitamente en el punto anterior, pero implícito en esta
+  regla — ver `docs/DECISIONES.md`), habilitado solo cuando el período que se
+  está viendo no es el vigente.
 
 ### 8.5 Comisiones de trabajo `/admin/comisiones`
 - Lista con nombre, estado activa/inactiva, orden (Subir/Bajar), Editar y Eliminar.
