@@ -9,7 +9,6 @@ import {
   SUGERENCIAS_CARGO,
   TITULOS_PROFESIONALES,
 } from "@/lib/validations/comision-directiva";
-import { CampoFoto } from "@/components/admin/CampoFoto";
 import { Boton } from "@/components/ui/Boton";
 
 const ESTILO_INPUT =
@@ -124,8 +123,6 @@ export function FormularioMiembro({
           className={ESTILO_INPUT}
         />
       </div>
-
-      <CampoFoto nombre="fotoUrl" urlInicial={miembro?.fotoUrl} />
 
       {estado?.error && (
         <p role="alert" className="font-bold text-error">

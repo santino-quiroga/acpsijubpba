@@ -20,11 +20,7 @@ export function FilaMiembro({
   return (
     <li className="flex flex-col gap-3 rounded-tarjeta border border-tierra-100 p-4 md:flex-row md:items-center md:justify-between">
       <div className="flex items-center gap-3">
-        <AvatarIniciales
-          nombre={miembro.nombre}
-          apellido={miembro.apellido}
-          fotoUrl={miembro.fotoUrl}
-        />
+        <AvatarIniciales nombre={miembro.nombre} apellido={miembro.apellido} />
         <div>
           {miembro.cargo && (
             <p className="font-display font-bold text-verde-900">{miembro.cargo}</p>

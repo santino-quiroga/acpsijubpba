@@ -79,7 +79,12 @@ export async function obtenerUsuarioActual(): Promise<UsuarioSesion | null> {
 
   if (!sesion || sesion.expiresAt < new Date() || !sesion.usuario.activo) {
     if (sesion) await db.sesion.delete({ where: { id: sesion.id } });
-    await borrarCookieSesion();
+    // No se borra la cookie acá: esta función se llama también desde el
+    // render de páginas/layouts (no solo Server Actions), y Next.js no
+    // permite modificar cookies fuera de una Server Action o Route Handler
+    // (tirar ese error rompía /ingresar y el panel con una sesión vencida).
+    // Al no ser válida en la base, cada request la va a seguir rechazando
+    // igual; se termina reemplazando sola en el próximo login.
     return null;
   }
 

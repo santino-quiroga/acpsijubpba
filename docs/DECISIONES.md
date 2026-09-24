@@ -517,6 +517,13 @@ se confirmó con las DevTools que el header `Content-Security-Policy` llega
 en la respuesta y que el sitio (Inicio, Noticias, panel) funciona sin
 errores de CSP en la consola.
 
+*Ajuste posterior*: el header solo se manda cuando `NODE_ENV === "production"`
+(`next.config.ts`). En `npm run dev`, Turbopack/React usan `eval()` para el
+hot reload y el overlay de errores, que un CSP sin `'unsafe-eval'` bloquea y
+rompe la app en desarrollo (se vio al probar el login en dev). No tiene
+sentido relajar el CSP real de producción para eso, así que en dev
+directamente no se envía el header.
+
 **5. JSON-LD `Organization` con datos fijos, no leídos de la base.**
 La sección 12 pide JSON-LD `Organization` en el layout. `DatosContacto`
 (WhatsApp, teléfono, dirección, redes) se edita desde el panel y es
@@ -535,3 +542,39 @@ Sigue sin recibirse un `BLOB_READ_WRITE_TOKEN` real. No es un pendiente
 nuevo de esta fase, se repite acá para que quede visible en el resumen
 final: es la única funcionalidad del SDD que no se pudo probar de punta a
 punta contra un entorno real.
+
+## Ajustes posteriores a la Fase 6
+
+**1. La asociación pidió sacar las fotos de los miembros de la Comisión
+Directiva: solo listado de nombres con avatar de iniciales.**
+Resuelve el pendiente #4 de la sección 15. Se sacó por completo la carga de
+fotos: el campo `fotoUrl` del modelo `MiembroComision` (con su migración,
+`20260924003220_quitar_foto_miembro`), el componente `CampoFoto.tsx`, el
+manejo de subida/borrado en Blob de `src/actions/comision-directiva.ts` y el
+branch de imagen en `AvatarIniciales.tsx` (ahora siempre muestra las
+iniciales). Se consultó a la asociación (a través del usuario) si quería
+sacar también el círculo de iniciales y dejar una lista de texto plano, o
+mantenerlo — se mantuvo el círculo de iniciales, ya que no es una foto sino
+solo las iniciales sobre un color de fondo. Se confirmó que ningún miembro
+tenía `fotoUrl` cargado en la base real antes de aplicar la migración (no
+había ningún dato que se fuera a perder). Probado de punta a punta contra
+Neon: se editó un miembro real (Presidenta) desde el panel sin el campo de
+foto, se guardó correctamente, y la vista pública se ve con los círculos de
+iniciales en vez de fotos.
+
+**2. Bug de sesión encontrado y arreglado (no pedido, pero bloqueaba probar
+el login): `obtenerUsuarioActual()` intentaba borrar la cookie de sesión
+inválida desde el render de una página.**
+Next.js no permite modificar cookies fuera de una Server Action o Route
+Handler. `obtenerUsuarioActual()` se llama también desde `admin/layout.tsx`
+y `ingresar/page.tsx` (renders de Server Components, no Server Actions), así
+que cualquier usuario con una cookie de sesión vencida, borrada o de un
+usuario desactivado terminaba viendo una pantalla de error de servidor en
+vez de la pantalla de login — se reprodujo justo así al probar el login
+después de correr `admin:reset` (que invalida las sesiones existentes en la
+base, dejando la cookie del navegador "colgada"). Se sacó el borrado de
+cookie de esa función (`src/lib/auth.ts`): ya no hace falta, porque la
+sesión sigue siendo inválida en la base en cada request siguiente igual, y
+la cookie se termina reemplazando sola en el próximo login exitoso. El
+borrado explícito en `cerrarSesion()` (que sí es una Server Action) no se
+tocó. Probado: login completo funcionando de nuevo después del fix.

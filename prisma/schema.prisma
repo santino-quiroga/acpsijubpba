@@ -101,7 +101,6 @@ model MiembroComision {
   titulo    TituloProfesional @default(PSIC)
   nombre    String
   apellido  String
-  fotoUrl   String?
   orden     Int               @default(0)
 
   @@index([periodoId, grupo, orden])

@@ -275,7 +275,6 @@ model MiembroComision {
   titulo     TituloProfesional @default(PSIC)
   nombre     String
   apellido   String
-  fotoUrl    String?
   orden      Int               @default(0)
   @@index([periodoId, grupo, orden])
 }
@@ -384,7 +383,7 @@ Secciones en este orden:
 ### 7.5 Comisión Directiva `/comision-directiva`
 - Título: "Comisión Directiva" + período vigente (ej. "Período 2025–2027").
 - Bloques por grupo, en este orden:
-  1. Mesa Directiva: tarjetas con cargo destacado, título + nombre y foto (o avatar con iniciales si no hay foto).
+  1. Mesa Directiva: tarjetas con cargo destacado, título + nombre y avatar con iniciales (sin fotos, ver sección 15).
   2. Vocales Titulares.
   3. Vocales Suplentes.
   4. Comisión Revisora de Cuentas, en dos sub-bloques: Titulares y Suplentes.
@@ -475,11 +474,11 @@ Solo muestra datos, **sin formulario**.
 - Selector de período (el vigente, preseleccionado) y botones "Nuevo período" y "Marcar como vigente".
 - "Nuevo período" pide el nombre y ofrece **copiar los miembros del período actual** como punto de partida.
 - Miembros agrupados igual que en la vista pública. En cada grupo:
-  - Lista con título, nombre, apellido, cargo (solo en la mesa directiva) y foto.
+  - Lista con título, nombre, apellido, cargo (solo en la mesa directiva) y avatar con iniciales (sin foto, ver sección 15).
   - Botones "Subir" / "Bajar" para ordenar (sin drag & drop).
   - Editar y Eliminar.
   - "+ Agregar miembro a este grupo".
-- Formulario de miembro: grupo, cargo (texto libre con sugerencias: Presidenta/e, Vicepresidenta/e, Secretaria/o, Prosecretaria/o, Tesorera/o, Protesorera/o), título, nombre, apellido y foto opcional.
+- Formulario de miembro: grupo, cargo (texto libre con sugerencias: Presidenta/e, Vicepresidenta/e, Secretaria/o, Prosecretaria/o, Tesorera/o, Protesorera/o), título, nombre y apellido. Sin campo de foto.
 - No se puede eliminar el período vigente. Se agregó un botón "Eliminar período"
   (no listado explícitamente en el punto anterior, pero implícito en esta
   regla — ver `docs/DECISIONES.md`), habilitado solo cuando el período que se
@@ -704,7 +703,7 @@ SEED_DEMO=false
 | 1 | Descripciones de cada comisión de trabajo | Placeholders de la sección 11 (no salen de ningún documento fuente) |
 | 2 | WhatsApp, teléfono, dirección, horarios, datos de la filial y redes | Vacíos (se cargan desde el panel) |
 | 3 | Dominio y titularidad de las cuentas (Vercel, Neon, dominio) | A nombre de la asociación |
-| 4 | Fotos de los miembros de la comisión | Avatar con iniciales |
+| 4 | ~~Fotos de los miembros de la comisión~~ | **Resuelto**: la asociación pidió que no haya fotos, solo el listado de nombres con avatar de iniciales. Se sacó el campo de foto y `fotoUrl` del schema (ver `docs/DECISIONES.md`) |
 | 5 | ~~Requisitos o cuota para asociarse (texto del bloque "Asociarse")~~ | **Resuelto**: `docs/Requisitos_para_asociarse.md`, incorporado en la sección 11 |
 
 **Confirmado con el cliente:**
@@ -712,4 +711,5 @@ SEED_DEMO=false
 - Apellidos: D'Onofrio y Anasagasti.
 - Ante discrepancias entre los documentos fuente, prevalece la Presentación (`PRESENTACION_DE_APCPSIJUPBA.docx`) — aplicado a la lista de comisiones de trabajo (sección 11).
 - Nombre de la comisión de trabajo: "Salud y Buenestar" (con "u"; confirmado con el cliente que esta es la forma correcta, no "Bienestar").
+- La Comisión Directiva se muestra sin fotos de los miembros, solo el listado de nombres con avatar de iniciales (pendiente #4 de esta sección).
 - Se aplican correcciones ortográficas y de redacción a los textos transcriptos de Historia, Objetivos y la Bienvenida de Inicio (detalle en 7.3, 7.4 y 11).

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { del } from "@vercel/blob";
 import { requireAdmin } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { conAviso } from "@/lib/aviso";
@@ -45,10 +44,6 @@ export async function crearPeriodoAction(
           titulo: miembro.titulo,
           nombre: miembro.nombre,
           apellido: miembro.apellido,
-          // La foto no se copia: dos miembros no deberían compartir la misma
-          // imagen en Blob, porque al eliminar uno se borraría el archivo
-          // del otro (ver docs/DECISIONES.md).
-          fotoUrl: null,
           orden: miembro.orden,
         })),
       });
@@ -88,11 +83,6 @@ export async function eliminarPeriodo(id: string): Promise<void> {
     );
   }
 
-  const miembros = await db.miembroComision.findMany({ where: { periodoId: id } });
-  for (const miembro of miembros) {
-    if (miembro.fotoUrl) await del(miembro.fotoUrl).catch(() => {});
-  }
-
   await db.periodoComision.delete({ where: { id } });
   revalidarPublico();
   redirect(conAviso("/admin/comision-directiva", "Período eliminado."));
@@ -114,17 +104,12 @@ export async function guardarMiembroAction(
     titulo: formData.get("titulo"),
     nombre: formData.get("nombre"),
     apellido: formData.get("apellido"),
-    fotoUrl: formData.get("fotoUrl"),
   });
   if (!datos.success) {
     return { error: datos.error.issues[0]?.message ?? "Revisá los datos del formulario." };
   }
 
   if (id) {
-    const existente = await db.miembroComision.findUnique({ where: { id } });
-    if (existente?.fotoUrl && existente.fotoUrl !== datos.data.fotoUrl) {
-      await del(existente.fotoUrl).catch(() => {});
-    }
     await db.miembroComision.update({ where: { id }, data: datos.data });
   } else {
     const ultimo = await db.miembroComision.findFirst({
@@ -147,9 +132,6 @@ export async function guardarMiembroAction(
 
 export async function eliminarMiembro(id: string, periodoId: string): Promise<void> {
   await requireAdmin();
-
-  const miembro = await db.miembroComision.findUnique({ where: { id } });
-  if (miembro?.fotoUrl) await del(miembro.fotoUrl).catch(() => {});
 
   await db.miembroComision.delete({ where: { id } });
   revalidarPublico();

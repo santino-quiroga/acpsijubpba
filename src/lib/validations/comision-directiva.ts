@@ -39,11 +39,6 @@ export const esquemaMiembro = z.object({
   titulo: z.enum(TITULOS_PROFESIONALES),
   nombre: z.string().trim().min(1, "Ingresá el nombre."),
   apellido: z.string().trim().min(1, "Ingresá el apellido."),
-  fotoUrl: z
-    .string()
-    .trim()
-    .optional()
-    .transform((valor) => (valor ? valor : null)),
 });
 
 export const esquemaNuevoPeriodo = z.object({

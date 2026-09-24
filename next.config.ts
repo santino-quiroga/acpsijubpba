@@ -1,9 +1,9 @@
 import type { NextConfig } from "next";
 
-// CSP básico (sección 9.5): permite recursos propios, las imágenes de Vercel
-// Blob (noticias, fotos de comisión directiva) y los estilos/inline scripts
-// que ya usa la app (script anti-FOUC de escala de texto en layout.tsx,
-// estilos de Tailwind). No hay scripts ni recursos de terceros.
+// CSP básico (sección 9.5): permite recursos propios, las imágenes de
+// noticias en Vercel Blob y los scripts/estilos inline que ya usa la app
+// (script anti-FOUC y JSON-LD en layout.tsx, `@font-face` inyectado por
+// next/font). No hay scripts ni recursos de terceros.
 const CSP = [
   "default-src 'self'",
   "img-src 'self' data: https://*.public.blob.vercel-storage.com",
@@ -13,6 +13,12 @@ const CSP = [
   "connect-src 'self'",
   "frame-ancestors 'none'",
 ].join("; ");
+
+// Solo en producción: en `next dev`, Turbopack/React usan eval() para el
+// hot reload y los overlays de error, que un CSP sin 'unsafe-eval' bloquea
+// (rompe la app en desarrollo). No tiene sentido relajar el CSP real para
+// esto, así que en dev directamente no se manda el header.
+const esProduccion = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   images: {
@@ -35,7 +41,9 @@ const nextConfig: NextConfig = {
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "DENY" },
-          { key: "Content-Security-Policy", value: CSP },
+          ...(esProduccion
+            ? [{ key: "Content-Security-Policy", value: CSP }]
+            : []),
         ],
       },
     ];
