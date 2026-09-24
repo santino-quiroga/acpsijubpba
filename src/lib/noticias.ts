@@ -82,3 +82,11 @@ export async function obtenerNoticiasPaginadas(opciones: {
 export async function obtenerNoticiaPorSlug(slug: string) {
   return db.noticia.findUnique({ where: { slug }, include: INCLUYE_COMISION });
 }
+
+/** Para sitemap.ts (sección 7.9): slug y fecha de modificación de cada noticia publicada. */
+export async function obtenerSlugsNoticiasPublicadas() {
+  return db.noticia.findMany({
+    where: { estado: "PUBLICADA" },
+    select: { slug: true, updatedAt: true },
+  });
+}

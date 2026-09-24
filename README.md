@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ACPSIJUPBA — Sitio institucional
 
-## Getting Started
+Sitio institucional de la Asociación Civil Psicólogos Jubilados y
+Pensionados de la Provincia de Buenos Aires: sitio público (Inicio,
+Historia, Objetivos, Comisión Directiva, Noticias, Contacto) más un panel
+de administración para editar todo el contenido sin tocar código.
 
-First, run the development server:
+El documento de referencia del proyecto es [`docs/SDD_ACPSIJUPBA.md`](docs/SDD_ACPSIJUPBA.md).
+Las decisiones tomadas donde ese documento no era específico están
+registradas en [`docs/DECISIONES.md`](docs/DECISIONES.md).
+
+## Stack
+
+Next.js 16 (App Router) · TypeScript · Tailwind CSS · Prisma + PostgreSQL
+(Neon) · Vercel Blob (imágenes) · Tiptap (editor de texto enriquecido).
+
+## Instalación local
+
+**Requisitos**: Node.js 20 o superior y una base de datos PostgreSQL (se
+recomienda [Neon](https://neon.tech), que es la que se usa en producción).
+
+1. Instalar las dependencias:
+
+   ```bash
+   npm install
+   ```
+
+2. Copiar `.env.example` a `.env` y completar las variables (ver abajo).
+
+3. Aplicar las migraciones y cargar los datos iniciales:
+
+   ```bash
+   npm run db:migrate
+   npm run db:seed
+   ```
+
+   El seed es idempotente: se puede correr más de una vez sin duplicar
+   datos. Crea el administrador inicial con los datos de
+   `SEED_ADMIN_USUARIO` / `SEED_ADMIN_NOMBRE` / `SEED_ADMIN_PASSWORD`.
+
+4. Levantar el entorno de desarrollo:
+
+   ```bash
+   npm run dev
+   ```
+
+   El sitio queda en [http://localhost:3000](http://localhost:3000) y el
+   panel en [http://localhost:3000/ingresar](http://localhost:3000/ingresar).
+
+**Otros scripts útiles**: `npm run build` (build de producción), `npm run
+lint`, `npm run typecheck`, `npm run db:deploy` (aplica migraciones en
+producción, sin generar una nueva).
+
+## Variables de entorno
+
+| Variable | Para qué sirve |
+|---|---|
+| `DATABASE_URL` | Conexión a PostgreSQL (pooled), la que usa la app. |
+| `DATABASE_URL_UNPOOLED` | Conexión directa, la que usa `prisma migrate`. |
+| `BLOB_READ_WRITE_TOKEN` | Token de Vercel Blob, para subir imágenes de noticias y fotos de la Comisión Directiva. |
+| `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (ej. `https://acpsijupba.org.ar`). Se usa para el sitemap, el `robots.txt` y los enlaces para compartir. |
+| `SEED_ADMIN_USUARIO` / `SEED_ADMIN_NOMBRE` / `SEED_ADMIN_PASSWORD` | Datos del administrador que crea el seed la primera vez. |
+| `SEED_DEMO` | En `true`, el seed agrega además noticias de ejemplo (solo para desarrollo). |
+
+## Administradores: crear o restablecer acceso
+
+Si nadie tiene acceso al panel (o hay que dar de alta un administrador sin
+pasar por la interfaz), se usa la línea de comandos (`scripts/crear-admin.ts`):
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Crear un administrador nuevo
+npm run admin:crear -- --usuario jperez --nombre "Juan Pérez"
+
+# Restablecer la contraseña de uno existente (además cierra sus sesiones activas)
+npm run admin:reset -- --usuario jperez
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ambos comandos imprimen una contraseña temporal en la consola. Anotarla:
+no se vuelve a mostrar. La próxima vez que esa persona ingrese, el sistema
+le va a pedir que la cambie por una propia.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Si ya hay al menos un administrador con acceso, es más simple hacerlo desde
+el panel: **Usuarios** → **"Restablecer contraseña"** en la fila
+correspondiente.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Cómo publicar una noticia (instructivo para la asociación)
 
-## Learn More
+1. Ingresar al panel en `/ingresar` con el usuario y la contraseña.
+2. En el menú, hacer clic en **"Noticias"**.
+3. Hacer clic en el botón verde **"+ Nueva noticia"**.
+4. Completar el formulario:
+   - **Título**: un título corto y claro (entre 5 y 150 letras).
+   - **Resumen**: dos o tres líneas que resuman la noticia (entre 20 y 250
+     letras). Es lo que se ve en la lista de noticias.
+   - **Imagen de portada** (opcional): una foto de la actividad. Al
+     elegirla, hay que completar también el campo de **"Descripción de la
+     imagen"**, escribiendo brevemente qué se ve en la foto (por ejemplo:
+     "Grupo de socios en la visita al teatro").
+   - **Contenido**: el texto completo de la noticia. Se puede poner en
+     negrita, en cursiva, agregar subtítulos, listas y enlaces con la
+     barra de herramientas de arriba.
+   - **Comisión** (opcional): si la actividad está relacionada con alguna
+     comisión de trabajo, se puede elegir de la lista.
+   - **Fecha de publicación**: por defecto es el día de hoy, pero se puede
+     cambiar. Para anunciar una actividad futura (por ejemplo, "el próximo
+     2 de octubre visitaremos el teatro"), hay que poner la fecha en la que
+     va a ocurrir la actividad: mientras esa fecha no haya llegado, la
+     noticia aparece en "Próximas actividades"; una vez pasada, pasa sola a
+     "Actividades realizadas".
+5. Antes de publicar, se puede tocar **"Vista previa"** para ver cómo va a
+   quedar en el sitio.
+6. Cuando está lista, hacer clic en **"Publicar"**. La noticia va a
+   aparecer inmediatamente en Inicio y en la sección Noticias del sitio —
+   no hace falta ningún paso extra.
 
-To learn more about Next.js, take a look at the following resources:
+**Otras acciones disponibles** en cada noticia:
+- **"Guardar borrador"**: guarda los cambios sin publicarla todavía (no se
+  ve en el sitio público). Útil para dejarla a medio escribir.
+- **"Despublicar"**: la saca del sitio público sin borrarla, por si hay
+  que corregir algo con tranquilidad.
+- **"Eliminar"**: la borra para siempre (pide confirmación antes).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Crear el proyecto en Vercel con la cuenta de la asociación y conectar
+   este repositorio.
+2. Agregar Neon Postgres y Vercel Blob desde el Marketplace/Storage de
+   Vercel (las variables de entorno se completan automáticamente).
+3. Completar a mano `NEXT_PUBLIC_SITE_URL`, `SEED_ADMIN_USUARIO`,
+   `SEED_ADMIN_NOMBRE` y `SEED_ADMIN_PASSWORD`.
+4. Build command: `prisma migrate deploy && next build`.
+5. Correr el seed una única vez contra producción (`npm run db:seed`, con
+   las variables de entorno de producción).

@@ -14,11 +14,27 @@ const lora = Lora({
   weight: ["600", "700"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "ACPSIJUPBA",
     template: "%s | ACPSIJUPBA",
   },
+  description:
+    "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires.",
+};
+
+// JSON-LD Organization (sección 12 del SDD). Datos fijos: el nombre, la
+// descripción y el logo no dependen del contenido editable del panel.
+const JSON_LD_ORGANIZACION = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires",
+  alternateName: "ACPSIJUPBA",
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
   description:
     "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires.",
 };
@@ -47,6 +63,10 @@ export default function RootLayout({
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: SCRIPT_ESCALA_TEXTO }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD_ORGANIZACION) }}
+        />
       </head>
       <body>{children}</body>
     </html>

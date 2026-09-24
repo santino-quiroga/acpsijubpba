@@ -14,8 +14,29 @@ export function DetalleNoticia({
   const url = `${SITE_URL}/noticias/${noticia.slug}`;
   const textoWhatsapp = encodeURIComponent(`${noticia.titulo} ${url}`);
 
+  // JSON-LD NewsArticle (sección 12 del SDD).
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: noticia.titulo,
+    description: noticia.resumen,
+    image: noticia.imagenUrl ? [noticia.imagenUrl] : undefined,
+    datePublished: noticia.fechaPublicacion?.toISOString(),
+    dateModified: noticia.updatedAt.toISOString(),
+    mainEntityOfPage: url,
+    publisher: {
+      "@type": "Organization",
+      name: "ACPSIJUPBA",
+      logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
+    },
+  };
+
   return (
     <article className="mx-auto max-w-prosa px-4 py-12 md:px-6">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Link href="/noticias" className="font-bold text-verde-900 underline">
         ← Volver a noticias
       </Link>

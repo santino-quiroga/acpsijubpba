@@ -447,3 +447,91 @@ Datos de contacto se probó de punta a punta contra la base de Neon real
 (crear, editar, reordenar, marcar vigente, eliminar con sus reglas de
 negocio, protección del último administrador activo, revalidación del sitio
 público sin redeploy).
+
+## Fase 6 — Pulido
+
+**1. Favicon, apple-icon y og-default se generan con código (`next/og`),
+no se agregó ninguna librería nueva.**
+La sección 10.3 pide favicon 32/180/512 y una imagen `og-default.png` de
+1200×630. Generar esos tamaños a partir de `docs/logo.png` (1254×1254)
+normalmente requeriría una librería de procesamiento de imágenes (sharp,
+jimp, etc.), pero el stack de la sección 4 no la incluye y no se pidió
+autorización para sumarla. La alternativa sin dependencias nuevas: usar la
+convención de archivos de Next.js (`src/app/icon.tsx`, `apple-icon.tsx`,
+`opengraph-image.tsx`) con la API `ImageResponse` de `next/og`, que ya viene
+incluida con Next 16 (`node_modules/next/og.js`). Cada archivo lee
+`public/logo.png` una sola vez (a nivel de módulo, vía `src/lib/logo.ts`) y
+lo dibuja centrado sobre un `<div>` del tamaño pedido. `icon.tsx` usa
+`generateImageMetadata` para servir 32 y 512 desde el mismo archivo;
+`apple-icon.tsx` sirve 180 con fondo `crema` sólido (iOS no respeta
+transparencia); `opengraph-image.tsx` sirve 1200×630 con el logo y el nombre
+completo de la asociación en `verde-900`. Se verificaron las tres rutas
+levantando `next dev` y pidiendo `/icon?<params>`, `/apple-icon` y
+`/opengraph-image` directamente.
+
+**2. `public/logo.svg`: no se vectorizó, se documenta el uso del PNG
+(permitido explícitamente por la sección 10.3).**
+La sección 10.3 permite usar el PNG optimizado si la vectorización no queda
+limpia, dejándolo registrado acá. No se instaló `potrace` (tampoco está en
+la sección 4 y hubiera requerido autorización) y, aunque se hubiera
+instalado, un trazado automático de este logo en particular —un emblema con
+varios colores y texto curvo— tiende a perder legibilidad del texto y a
+generar formas con artefactos, quedando peor que el PNG. Se sigue usando
+`public/logo.png` en todo el sitio (ya servido con `next/image`, que en
+Vercel lo optimiza y convierte a WebP en tiempo de request sin necesidad de
+`sharp` local). No se creó ningún archivo `.svg`.
+
+**3. `not-found.tsx` duplicado a propósito: uno dentro de `(publico)`, otro
+en la raíz.**
+El `notFound()` que ya usa `/noticias/[slug]` (para una noticia inexistente
+o despublicada) se resuelve con el `not-found.tsx` más cercano en el árbol
+ya renderizado — dentro de `(publico)`, así que sale con `Header`/`Footer`
+del layout del grupo de rutas. Pero una URL que no coincide con ningún
+segmento (ej. `/loquesea`) no llega a renderizar ese layout, y usa el
+`not-found.tsx` de la raíz en su lugar — que no tiene `Header`/`Footer`
+porque el layout raíz solo define `<html>/<body>`. Para que ese caso
+también se vea igual de "amable" y con los mismos dos links (Inicio y
+Noticias, sección 7.9), el de la raíz importa `Header` y `Footer`
+directamente en vez de depender del layout. Se probó pidiendo una noticia
+con slug inexistente y una ruta cualquiera fuera de cualquier segmento
+conocido: ambas muestran el mensaje y los dos botones: una con
+`Header`/`Footer` vía el layout, la otra agregándolos a mano — mismo
+resultado visual.
+
+**4. CSP básico con `'unsafe-inline'` en `script-src` y `style-src`.**
+La sección 9.5 pide "un CSP básico que permita Vercel Blob", sin pedir un
+CSP estricto con nonces. Hay dos motivos concretos para permitir inline en
+este sitio, no una elección por comodidad: (a) `layout.tsx` inyecta un
+`<script>` inline (anti-FOUC del control de escala de texto A−/A+) y otro
+con el JSON-LD `Organization`, y `DetalleNoticia.tsx` inyecta el JSON-LD
+`NewsArticle`; (b) `next/font` (Lora, Atkinson Hyperlegible) inserta
+`@font-face` en un `<style>` inline para los self-hosted fonts, y bloquear
+eso degradaría justamente la tipografía elegida por legibilidad para el
+público de 65+ (sección 3.2). Implementar nonces habría significado tocar
+el render de cada página que usa estos scripts/estilos, una complejidad no
+pedida por la sección 9.5. El resto del CSP es estricto: `default-src
+'self'`, `img-src` solo el propio dominio y el hostname de Vercel Blob,
+`frame-ancestors 'none'` (refuerza el `X-Frame-Options: DENY` de al lado) y
+sin ningún dominio de terceros. Se probó con `next build && next start` y
+se confirmó con las DevTools que el header `Content-Security-Policy` llega
+en la respuesta y que el sitio (Inicio, Noticias, panel) funciona sin
+errores de CSP en la consola.
+
+**5. JSON-LD `Organization` con datos fijos, no leídos de la base.**
+La sección 12 pide JSON-LD `Organization` en el layout. `DatosContacto`
+(WhatsApp, teléfono, dirección, redes) se edita desde el panel y es
+específico de la página de Contacto; agregar una consulta a la base de
+datos en el layout raíz —que envuelve también todo `/admin`— para leer esos
+datos solo para el JSON-LD es una complejidad nueva no pedida y agrega una
+consulta a cada request del panel sin necesidad. El `Organization` del
+layout usa solo nombre, nombre alternativo, URL, logo y descripción — datos
+fijos que no cambian desde el panel. El JSON-LD `NewsArticle` de
+`DetalleNoticia.tsx`, en cambio, sí usa datos de la noticia (ya los tiene
+cargados para renderizar la página).
+
+**6. Sigue sin probarse la subida real de fotos/imágenes (arrastrado de
+fases anteriores).**
+Sigue sin recibirse un `BLOB_READ_WRITE_TOKEN` real. No es un pendiente
+nuevo de esta fase, se repite acá para que quede visible en el resumen
+final: es la única funcionalidad del SDD que no se pudo probar de punta a
+punta contra un entorno real.
