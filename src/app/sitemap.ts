@@ -10,9 +10,9 @@ const PAGINAS_ESTATICAS = [
   "/objetivos",
   "/comision-directiva",
   "/contacto",
-  "/noticias",
-  "/noticias/proximas",
-  "/noticias/realizadas",
+  "/actividades",
+  "/actividades/proximas",
+  "/actividades/realizadas",
 ];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -23,7 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const deNoticias: MetadataRoute.Sitemap = noticias.map((noticia) => ({
-    url: `${SITE_URL}/noticias/${noticia.slug}`,
+    url: `${SITE_URL}/actividades/${noticia.slug}`,
     lastModified: noticia.updatedAt,
   }));
 

@@ -23,9 +23,9 @@ Versión: 1.0 · Fecha: 15/09/2026 · Destinatario: Claude Code
 
 ## 1. Resumen
 
-Sitio institucional público con 6 secciones (Inicio, Historia, Objetivos, Comisión Directiva, Noticias, Contacto) y un **panel de administración integrado** con acceso por usuario y contraseña. Desde el panel, la asociación gestiona:
+Sitio institucional público con 6 secciones (Inicio, Historia, Objetivos, Comisión Directiva, Actividades, Contacto) y un **panel de administración integrado** con acceso por usuario y contraseña. Desde el panel, la asociación gestiona:
 
-1. Noticias (crear, editar, publicar/despublicar, eliminar).
+1. Actividades (crear, editar, publicar/despublicar, eliminar).
 2. Comisión directiva (por período).
 3. Comisiones de trabajo (Cultura, Turismo, etc.).
 4. Textos de la página de Inicio.
@@ -42,15 +42,19 @@ Existe un único rol: **administrador**.
 - Sitio público responsive y accesible.
 - Panel admin con CRUD de las entidades listadas en la sección 1.
 - Subida de imágenes con compresión automática.
-- SEO básico, Open Graph y botón para compartir noticias por WhatsApp.
+- SEO básico, Open Graph y botón para compartir actividades por WhatsApp.
 - Script de seed con el contenido inicial.
 
 ### 2.2 Fuera de alcance (v2 o posterior)
 - Formulario de contacto o de asociación (Contacto muestra **solo datos**).
 - Agenda de actividades o eventos como modelo de datos propio (con fecha de
-  inicio/fin, lugar, etc.) y su propio CRUD. La separación de Noticias en
-  "Próximas actividades" / "Actividades realizadas" (sección 7.6) no es esto:
-  reutiliza el modelo `Noticia` ya existente, agrupado por `fechaPublicacion`.
+  inicio/fin, lugar, etc.) y su propio CRUD. La sección "Actividades"
+  (llamada "Noticias" hasta que la asociación pidió el cambio de nombre —
+  ver `docs/DECISIONES.md`), con su separación en "Próximas actividades" /
+  "Actividades realizadas" (sección 7.6), no es esto: reutiliza el modelo
+  `Noticia` ya existente (el modelo de Prisma y los archivos de código
+  internos siguen llamándose `Noticia`/`noticia`; solo el texto visible y
+  las URLs dicen "Actividad"), agrupado por `fechaPublicacion`.
 - Galería de fotos.
 - Área privada para socios.
 - Newsletter.
@@ -65,7 +69,7 @@ Existe un único rol: **administrador**.
 | Perfil | Descripción | Necesidad principal |
 |---|---|---|
 | Visitante | Psicólogos jubilados/pensionados (mayormente +65), colegas y público general | Leer con comodidad y encontrar contacto y novedades |
-| Administrador | Miembros de la comisión directiva (+65), uso ocasional | Publicar una noticia sin ayuda técnica |
+| Administrador | Miembros de la comisión directiva (+65), uso ocasional | Publicar una actividad sin ayuda técnica |
 
 ### 3.2 Principios obligatorios
 **Accesibilidad (WCAG 2.1 AA como mínimo)**
@@ -75,16 +79,16 @@ Existe un único rol: **administrador**.
 - Foco visible en todos los elementos interactivos y navegación completa por teclado.
 - Control **"A− / A+"** en el header, que escala la tipografía (3 niveles) y guarda la preferencia en `localStorage`.
 - Sin carruseles automáticos, sin animaciones decorativas y con respeto de `prefers-reduced-motion`.
-- Links con texto descriptivo ("Leer noticia completa", no "Click aquí").
+- Links con texto descriptivo ("Leer actividad completa", no "Click aquí").
 - Imágenes con `alt` obligatorio (el panel lo exige al subir).
 - Solo modo claro.
 
 **Simplicidad en el panel**
-- Una tarea por pantalla, con botones de texto explícito ("Guardar noticia", "Publicar").
+- Una tarea por pantalla, con botones de texto explícito ("Guardar actividad", "Publicar").
 - Mensajes de confirmación y error en lenguaje llano, sin jerga técnica.
 - Confirmación (modal) antes de cualquier eliminación.
 - Aviso de cambios sin guardar al intentar salir de un formulario.
-- Botón "Ver cómo queda" (vista previa) en noticias.
+- Botón "Ver cómo queda" (vista previa) en actividades.
 
 ---
 
@@ -135,14 +139,14 @@ Existe un único rol: **administrador**.
 │  │  │  ├─ historia/page.tsx
 │  │  │  ├─ objetivos/page.tsx
 │  │  │  ├─ comision-directiva/page.tsx
-│  │  │  ├─ noticias/page.tsx
-│  │  │  ├─ noticias/[slug]/page.tsx
+│  │  │  ├─ actividades/page.tsx      # antes "noticias" (ver docs/DECISIONES.md)
+│  │  │  ├─ actividades/[slug]/page.tsx
 │  │  │  └─ contacto/page.tsx
 │  │  ├─ ingresar/page.tsx    # login
 │  │  ├─ admin/
 │  │  │  ├─ layout.tsx        # verifica sesión + navegación del panel
 │  │  │  ├─ page.tsx          # escritorio
-│  │  │  ├─ noticias/...
+│  │  │  ├─ actividades/...           # nombre interno del código sigue siendo "noticias"
 │  │  │  ├─ comision-directiva/...
 │  │  │  ├─ comisiones/...
 │  │  │  ├─ inicio/page.tsx
@@ -217,7 +221,7 @@ model IntentoLogin {
   @@index([identificador, createdAt])
 }
 
-// ---------- Noticias ----------
+// ---------- Noticias (se muestran como "Actividades" en el sitio, ver docs/DECISIONES.md) ----------
 enum EstadoNoticia {
   BORRADOR
   PUBLICADA
@@ -296,7 +300,7 @@ model ContenidoInicio {
   heroTitulo          String  @db.VarChar(120)
   heroSubtitulo       String  @db.VarChar(250)
   bienvenidaTitulo    String  @db.VarChar(120)
-  bienvenidaTexto     String  @db.Text     // HTML sanitizado (mismo editor que noticias)
+  bienvenidaTexto     String  @db.Text     // HTML sanitizado (mismo editor que actividades)
   asociarseTitulo     String  @db.VarChar(120)
   asociarseTexto      String  @db.Text     // HTML sanitizado
   updatedAt           DateTime @updatedAt
@@ -321,11 +325,11 @@ model DatosContacto {
 ```
 
 **Reglas de negocio**
-- `slug` se genera a partir del título (minúsculas, sin tildes, guiones). Si ya existe, se le agrega el sufijo `-2`, `-3`, etc. **No cambia** al editar el título de una noticia publicada, para no romper links compartidos.
+- `slug` se genera a partir del título (minúsculas, sin tildes, guiones). Si ya existe, se le agrega el sufijo `-2`, `-3`, etc. **No cambia** al editar el título de una actividad publicada, para no romper links compartidos.
 - Solo un `PeriodoComision` puede estar vigente: al marcar uno, en la misma transacción se desmarcan los demás.
 - No se puede desactivar ni eliminar al último administrador activo, ni un usuario puede eliminarse a sí mismo.
-- Al eliminar una comisión de trabajo, sus noticias quedan sin categoría (`SetNull`).
-- Al eliminar una noticia o un miembro con imagen, se borra también el archivo en Vercel Blob.
+- Al eliminar una comisión de trabajo, sus actividades quedan sin categoría (`SetNull`).
+- Al eliminar una actividad o un miembro con imagen, se borra también el archivo en Vercel Blob.
 
 ---
 
@@ -334,7 +338,7 @@ model DatosContacto {
 ### 7.1 Layout común
 **Header (sticky)**
 - Logo + "ACPSIJUPBA" y, debajo en desktop, el nombre completo en tipografía chica.
-- Menú: Inicio · Historia · Objetivos · Comisión Directiva · Noticias · Contacto. El ítem activo se marca con subrayado y color, no solo con color.
+- Menú: Inicio · Historia · Objetivos · Comisión Directiva · Actividades · Contacto. El ítem activo se marca con subrayado y color, no solo con color.
 - Control A− / A+.
 - En móvil: botón "Menú" (con texto, no solo el ícono hamburguesa) que abre un panel a pantalla completa con links grandes.
 
@@ -349,7 +353,7 @@ Secciones en este orden:
 1. **Hero:** `heroTitulo` + `heroSubtitulo` (editables), logo grande y botones "Conocé nuestra historia" y "Contactanos".
 2. **Bienvenida:** `bienvenidaTitulo` + `bienvenidaTexto` (editables; el seed toma el texto de la presentación).
 3. **Nuestras comisiones de trabajo:** tarjetas de las `ComisionTrabajo` activas, ordenadas por `orden` (ícono, nombre y descripción).
-4. **Últimas noticias:** las 3 más recientes publicadas y el botón "Ver todas las noticias". Si no hay ninguna, la sección no se muestra.
+4. **Últimas actividades:** las 3 más recientes publicadas y el botón "Ver todas las actividades". Si no hay ninguna, la sección no se muestra.
 5. **¿Querés asociarte?:** `asociarseTitulo` + `asociarseTexto` (editables), con botones a email y WhatsApp tomados de `DatosContacto`.
 
 ### 7.3 Historia `/historia`
@@ -390,22 +394,25 @@ Secciones en este orden:
 - Formato de nombre: `Psic. María Angela Odera` (apellido en capitalización normal; opcionalmente en versalitas con CSS).
 - Si no hay período vigente, mostrar "Información próximamente disponible".
 
-### 7.6 Noticias `/noticias`
+### 7.6 Actividades `/actividades`
 **Actualizado a pedido de la asociación** (ver `docs/DECISIONES.md`, Fase 4):
 la sección se divide en dos, sin usar carruseles (prohibidos por la sección
 3.2 para este público). No se agrega un modelo de "actividad/evento" nuevo
 (la sección 2.2 deja eso fuera de alcance): se reutiliza `Noticia` con su
-`fechaPublicacion`, comparada contra "hoy" en hora Argentina.
+`fechaPublicacion`, comparada contra "hoy" en hora Argentina. La sección se
+llamó "Noticias" hasta que la asociación pidió renombrarla a "Actividades"
+(URLs incluidas; ver `docs/DECISIONES.md`) — el modelo `Noticia` y el
+código interno no se renombraron.
 
-- **`/noticias`**: dos secciones apiladas, "Próximas actividades" (`fechaPublicacion` de hoy en adelante, orden ascendente) y "Actividades realizadas" (`fechaPublicacion` pasada, orden descendente). Cada una muestra una vista previa acotada (grilla de tarjetas: imagen, fecha, categoría si tiene, título, resumen y "Leer noticia completa") con un botón "Ver todas las próximas actividades" / "Ver todas las actividades realizadas".
-- **`/noticias/proximas`** y **`/noticias/realizadas`**: la grilla completa de cada grupo, paginada de 9 por página con `?pagina=N` (botones grandes "Anteriores" / "Más recientes" y el número de página) y con filtro opcional por comisión (`?comision=<id>` — `ComisionTrabajo` no tiene un campo `slug` en la sección 6, así que el filtro usa directamente su `id`) con chips simples.
-- En ambos casos, solo se listan las noticias con `estado = PUBLICADA`.
-- La sección "Últimas noticias" de Inicio (7.2) no distingue próximas/realizadas: siempre son las 3 últimas por `fechaPublicacion`, como estaba definido.
+- **`/actividades`**: dos secciones apiladas, "Próximas actividades" (`fechaPublicacion` de hoy en adelante, orden ascendente) y "Actividades realizadas" (`fechaPublicacion` pasada, orden descendente). Cada una muestra una vista previa acotada (grilla de tarjetas: imagen, fecha, categoría si tiene, título, resumen y "Leer actividad completa") con un botón "Ver todas las próximas actividades" / "Ver todas las actividades realizadas".
+- **`/actividades/proximas`** y **`/actividades/realizadas`**: la grilla completa de cada grupo, paginada de 9 por página con `?pagina=N` (botones grandes "Anteriores" / "Más recientes" y el número de página) y con filtro opcional por comisión (`?comision=<id>` — `ComisionTrabajo` no tiene un campo `slug` en la sección 6, así que el filtro usa directamente su `id`) con chips simples.
+- En ambos casos, solo se listan las actividades con `estado = PUBLICADA`.
+- La sección "Últimas actividades" de Inicio (7.2) no distingue próximas/realizadas: siempre son las 3 últimas por `fechaPublicacion`, como estaba definido.
 
-### 7.7 Detalle de noticia `/noticias/[slug]`
+### 7.7 Detalle de actividad `/actividades/[slug]`
 - Título, fecha, categoría, imagen de portada y contenido.
 - Botones "Compartir por WhatsApp" (`https://wa.me/?text=` + título + URL) y "Copiar enlace".
-- Link "← Volver a noticias".
+- Link "← Volver a actividades".
 - Metadatos Open Graph (título, resumen e imagen).
 - Un borrador responde 404 públicamente; los admins lo ven solo desde la vista previa del panel.
 
@@ -421,8 +428,8 @@ Solo muestra datos, **sin formulario**.
 - Cualquier campo vacío no se muestra.
 
 ### 7.9 Otros
-- `not-found.tsx` amable, con links a Inicio y Noticias.
-- `sitemap.ts` con las páginas estáticas y las noticias publicadas.
+- `not-found.tsx` amable, con links a Inicio y Actividades.
+- `sitemap.ts` con las páginas estáticas y las actividades publicadas.
 - `robots.ts`: bloquear `/admin` e `/ingresar`.
 
 ---
@@ -433,7 +440,7 @@ Solo muestra datos, **sin formulario**.
 - Barra superior: logo + "Panel de administración", el nombre del usuario, "Ver sitio" (en pestaña nueva) y "Cerrar sesión".
 - Menú lateral en desktop y superior desplegable en móvil:
   - Escritorio
-  - Noticias
+  - Actividades
   - Comisión Directiva
   - Comisiones de trabajo
   - Textos de Inicio
@@ -445,16 +452,16 @@ Solo muestra datos, **sin formulario**.
 
 ### 8.2 Escritorio `/admin`
 - Saludo ("Hola, {nombre}").
-- Tres accesos grandes: **"Publicar una noticia"**, "Editar comisión directiva" y "Editar datos de contacto".
-- Resumen: cantidad de noticias publicadas y de borradores, y fecha de la última publicación.
+- Tres accesos grandes: **"Publicar una actividad"**, "Editar comisión directiva" y "Editar datos de contacto".
+- Resumen: cantidad de actividades publicadas y de borradores, y fecha de la última publicación.
 
-### 8.3 Noticias
-**Listado `/admin/noticias`**
+### 8.3 Actividades
+**Listado `/admin/actividades`**
 - Tabla en desktop y tarjetas en móvil, con: título, estado (badge "Publicada" / "Borrador"), fecha y acciones (Editar, Ver, Eliminar).
-- Botón principal "+ Nueva noticia".
+- Botón principal "+ Nueva actividad".
 - Buscador por título y filtro por estado.
 
-**Formulario `/admin/noticias/nueva` y `/admin/noticias/[id]`**
+**Formulario `/admin/actividades/nueva` y `/admin/actividades/[id]`**
 | Campo | Reglas |
 |---|---|
 | Título | Obligatorio, 5–150 caracteres |
@@ -466,9 +473,9 @@ Solo muestra datos, **sin formulario**.
 | Fecha de publicación | Por defecto la fecha de hoy; editable |
 
 - Acciones: "Guardar borrador", "Publicar" (o "Guardar cambios" si ya está publicada), "Despublicar", "Vista previa" y "Eliminar".
-- La vista previa abre `/admin/noticias/[id]/vista-previa`, que usa el mismo componente que la página pública, con un aviso "Vista previa — no publicada".
+- La vista previa abre `/admin/actividades/[id]/vista-previa`, que usa el mismo componente que la página pública, con un aviso "Vista previa — no publicada".
 - El HTML se sanitiza en el servidor con una whitelist: `p, h2, strong, em, ul, ol, li, a[href|target|rel], br`. Los links externos llevan `rel="noopener noreferrer" target="_blank"`.
-- Al guardar se revalidan `/`, `/noticias`, `/noticias/[slug]` y `sitemap.xml`.
+- Al guardar se revalidan `/`, `/actividades`, `/actividades/[slug]` y `sitemap.xml`.
 
 ### 8.4 Comisión Directiva `/admin/comision-directiva`
 - Selector de período (el vigente, preseleccionado) y botones "Nuevo período" y "Marcar como vigente".
@@ -491,11 +498,11 @@ Solo muestra datos, **sin formulario**.
   - Descripción (máx. 400 caracteres).
   - Ícono, elegido de una grilla visual cerrada de unos 12 íconos lucide: `palette`, `plane`, `scale`, `book-open`, `heart-pulse`, `users`, `megaphone`, `landmark`, `calendar`, `music`, `camera`, `sprout`.
   - Activa (sí/no).
-- Eliminar una comisión que tiene noticias muestra el aviso "X noticias quedarán sin categoría".
+- Eliminar una comisión que tiene actividades muestra el aviso "X actividades quedarán sin categoría".
 
 ### 8.6 Textos de Inicio `/admin/inicio`
 - Formulario único con los campos de `ContenidoInicio`, agrupados como "Encabezado", "Bienvenida" y "Asociarse".
-- Los textos largos usan el mismo editor que las noticias, pero sin H2.
+- Los textos largos usan el mismo editor que las actividades, pero sin H2.
 - Cada grupo tiene el link "Ver en el sitio".
 
 ### 8.7 Datos de contacto `/admin/contacto`
@@ -635,9 +642,9 @@ Tomar los valores exactos con un cuentagotas sobre `docs/logo.png` y ajustarlos 
 - `filialNombre`: "Filial Mar del Plata"
 - El resto de los campos queda vacío (**[PENDIENTE]**, lo carga la asociación desde el panel).
 
-**Noticias**
+**Actividades**
 - Ninguna en producción.
-- Crear 4 noticias de ejemplo **solo** si `SEED_DEMO=true`, para desarrollo.
+- Crear 4 actividades de ejemplo **solo** si `SEED_DEMO=true`, para desarrollo.
 
 ---
 
@@ -646,7 +653,7 @@ Tomar los valores exactos con un cuentagotas sobre `docs/logo.png` y ajustarlos 
 - `metadata` por página, con el template de título `%s | ACPSIJUPBA`.
 - Descripción por defecto: "Asociación Civil Psicólogos Jubilados y Pensionados de la Provincia de Buenos Aires."
 - `lang="es-AR"`.
-- JSON-LD `Organization` en el layout y `NewsArticle` en el detalle de noticia.
+- JSON-LD `Organization` en el layout y `NewsArticle` en el detalle de actividad.
 - Imágenes con `next/image` (dominio de Vercel Blob en `remotePatterns`).
 - Objetivos de Lighthouse en móvil: Performance ≥ 90, Accessibility ≥ 95, Best Practices ≥ 95, SEO ≥ 95.
 - Fechas formateadas con `Intl.DateTimeFormat('es-AR', { dateStyle: 'long', timeZone: 'America/Argentina/Buenos_Aires' })`.
@@ -679,7 +686,7 @@ SEED_DEMO=false
 4. Ejecutar el seed una única vez contra producción.
 5. Configurar el dominio **[PENDIENTE]**. Sugerido: `acpsijupba.org.ar`, que se registra en NIC Argentina con la documentación de la Personería Jurídica.
 
-**README.md**: incluir instalación local, variables de entorno, cómo crear o restablecer un admin, y un **mini instructivo para la asociación** ("Cómo publicar una noticia", paso a paso con lenguaje simple).
+**README.md**: incluir instalación local, variables de entorno, cómo crear o restablecer un admin, y un **mini instructivo para la asociación** ("Cómo publicar una actividad", paso a paso con lenguaje simple).
 
 ---
 
@@ -690,7 +697,7 @@ SEED_DEMO=false
 | **1. Base** | Setup Next.js, Tailwind con tokens, fuentes, Prisma + schema + migración, seed | `npm run build` OK; el seed corre dos veces sin duplicar datos |
 | **2. Sitio público estático** | Layout, Inicio, Historia, Objetivos, Comisión Directiva, Contacto (leyendo de la base de datos) | Todas las páginas renderizan con los datos del seed; control A−/A+ funciona; navegación por teclado completa; menú móvil usable |
 | **3. Autenticación** | Login, sesiones, middleware, `requireAdmin`, límite de intentos, cambio obligatorio de contraseña, scripts CLI | Sin sesión, `/admin` redirige a `/ingresar`; 6.º intento fallido bloqueado; logout invalida la sesión en la base de datos |
-| **4. Noticias** | Páginas públicas de noticias + CRUD admin + editor + imágenes + vista previa | Un admin crea una noticia con imagen, la previsualiza, la publica, aparece en Inicio y en /noticias, la despublica y responde 404; el HTML malicioso (`<script>`) se elimina |
+| **4. Actividades** | Páginas públicas de actividades + CRUD admin + editor + imágenes + vista previa | Un admin crea una actividad con imagen, la previsualiza, la publica, aparece en Inicio y en /actividades, la despublica y responde 404; el HTML malicioso (`<script>`) se elimina |
 | **5. Resto del panel** | Comisión directiva (períodos), comisiones de trabajo, textos de Inicio, contacto, usuarios, mi cuenta, escritorio | Cada cambio se refleja en el sitio público sin redeploy; no se puede eliminar el último admin ni el período vigente |
 | **6. Pulido** | SEO, sitemap, OG, 404, headers de seguridad, logo SVG, favicon, README e instructivo | Lighthouse con los objetivos de la sección 12; axe sin errores críticos; sitio probado en 375px, 768px y 1280px |
 

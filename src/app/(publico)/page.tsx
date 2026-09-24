@@ -93,7 +93,7 @@ export default async function PaginaInicio() {
       {ultimasNoticias.length > 0 && (
         <section className="mx-auto w-full max-w-5xl px-4 py-14 md:px-6">
           <h2 className="text-center font-display text-h2 font-bold text-verde-900">
-            Últimas noticias
+            Últimas actividades
           </h2>
           <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {ultimasNoticias.map((noticia) => (
@@ -101,8 +101,8 @@ export default async function PaginaInicio() {
             ))}
           </ul>
           <div className="mt-8 flex justify-center">
-            <BotonLink href="/noticias" variante="secundario">
-              Ver todas las noticias
+            <BotonLink href="/actividades" variante="secundario">
+              Ver todas las actividades
             </BotonLink>
           </div>
         </section>

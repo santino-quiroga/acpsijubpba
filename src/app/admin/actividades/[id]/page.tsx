@@ -21,7 +21,7 @@ export default async function PaginaEditarNoticia({
   return (
     <div>
       <h1 className="font-display text-h1 font-bold text-verde-900">
-        Editar noticia
+        Editar actividad
       </h1>
       <div className="mt-6 max-w-prosa">
         <FormularioNoticia noticia={noticia} comisiones={comisiones} />

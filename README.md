@@ -2,7 +2,7 @@
 
 Sitio institucional de la Asociación Civil Psicólogos Jubilados y
 Pensionados de la Provincia de Buenos Aires: sitio público (Inicio,
-Historia, Objetivos, Comisión Directiva, Noticias, Contacto) más un panel
+Historia, Objetivos, Comisión Directiva, Actividades, Contacto) más un panel
 de administración para editar todo el contenido sin tocar código.
 
 El documento de referencia del proyecto es [`docs/SDD_ACPSIJUPBA.md`](docs/SDD_ACPSIJUPBA.md).
@@ -57,10 +57,10 @@ producción, sin generar una nueva).
 |---|---|
 | `DATABASE_URL` | Conexión a PostgreSQL (pooled), la que usa la app. |
 | `DATABASE_URL_UNPOOLED` | Conexión directa, la que usa `prisma migrate`. |
-| `BLOB_READ_WRITE_TOKEN` | Token de Vercel Blob, para subir imágenes de noticias y fotos de la Comisión Directiva. |
+| `BLOB_READ_WRITE_TOKEN` | Token de Vercel Blob, para subir imágenes de actividades y fotos de la Comisión Directiva. |
 | `NEXT_PUBLIC_SITE_URL` | URL pública del sitio (ej. `https://acpsijupba.org.ar`). Se usa para el sitemap, el `robots.txt` y los enlaces para compartir. |
 | `SEED_ADMIN_USUARIO` / `SEED_ADMIN_NOMBRE` / `SEED_ADMIN_PASSWORD` | Datos del administrador que crea el seed la primera vez. |
-| `SEED_DEMO` | En `true`, el seed agrega además noticias de ejemplo (solo para desarrollo). |
+| `SEED_DEMO` | En `true`, el seed agrega además actividades de ejemplo (solo para desarrollo). |
 
 ## Administradores: crear o restablecer acceso
 
@@ -83,20 +83,20 @@ Si ya hay al menos un administrador con acceso, es más simple hacerlo desde
 el panel: **Usuarios** → **"Restablecer contraseña"** en la fila
 correspondiente.
 
-## Cómo publicar una noticia (instructivo para la asociación)
+## Cómo publicar una actividad (instructivo para la asociación)
 
 1. Ingresar al panel en `/ingresar` con el usuario y la contraseña.
-2. En el menú, hacer clic en **"Noticias"**.
-3. Hacer clic en el botón verde **"+ Nueva noticia"**.
+2. En el menú, hacer clic en **"Actividades"**.
+3. Hacer clic en el botón verde **"+ Nueva actividad"**.
 4. Completar el formulario:
    - **Título**: un título corto y claro (entre 5 y 150 letras).
-   - **Resumen**: dos o tres líneas que resuman la noticia (entre 20 y 250
-     letras). Es lo que se ve en la lista de noticias.
+   - **Resumen**: dos o tres líneas que resuman la actividad (entre 20 y 250
+     letras). Es lo que se ve en la lista de actividades.
    - **Imagen de portada** (opcional): una foto de la actividad. Al
      elegirla, hay que completar también el campo de **"Descripción de la
      imagen"**, escribiendo brevemente qué se ve en la foto (por ejemplo:
      "Grupo de socios en la visita al teatro").
-   - **Contenido**: el texto completo de la noticia. Se puede poner en
+   - **Contenido**: el texto completo de la actividad. Se puede poner en
      negrita, en cursiva, agregar subtítulos, listas y enlaces con la
      barra de herramientas de arriba.
    - **Comisión** (opcional): si la actividad está relacionada con alguna
@@ -105,15 +105,15 @@ correspondiente.
      cambiar. Para anunciar una actividad futura (por ejemplo, "el próximo
      2 de octubre visitaremos el teatro"), hay que poner la fecha en la que
      va a ocurrir la actividad: mientras esa fecha no haya llegado, la
-     noticia aparece en "Próximas actividades"; una vez pasada, pasa sola a
+     actividad aparece en "Próximas actividades"; una vez pasada, pasa sola a
      "Actividades realizadas".
 5. Antes de publicar, se puede tocar **"Vista previa"** para ver cómo va a
    quedar en el sitio.
-6. Cuando está lista, hacer clic en **"Publicar"**. La noticia va a
-   aparecer inmediatamente en Inicio y en la sección Noticias del sitio —
+6. Cuando está lista, hacer clic en **"Publicar"**. La actividad va a
+   aparecer inmediatamente en Inicio y en la sección Actividades del sitio —
    no hace falta ningún paso extra.
 
-**Otras acciones disponibles** en cada noticia:
+**Otras acciones disponibles** en cada actividad:
 - **"Guardar borrador"**: guarda los cambios sin publicarla todavía (no se
   ve en el sitio público). Útil para dejarla a medio escribir.
 - **"Despublicar"**: la saca del sitio público sin borrarla, por si hay

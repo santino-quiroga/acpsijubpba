@@ -38,10 +38,10 @@ export function TarjetaNoticia({
         <h3 className="font-display text-h3 font-bold text-texto">{noticia.titulo}</h3>
         <p className="flex-1 text-cuerpo text-texto-suave">{noticia.resumen}</p>
         <Link
-          href={`/noticias/${noticia.slug}`}
+          href={`/actividades/${noticia.slug}`}
           className="mt-2 font-bold text-verde-900 underline"
         >
-          Leer noticia completa
+          Leer actividad completa
         </Link>
       </div>
     </li>

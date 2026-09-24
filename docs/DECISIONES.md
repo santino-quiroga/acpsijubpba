@@ -600,3 +600,45 @@ haciendo falta que, una vez resuelto el dominio real, se cargue
 correctamente en Vercel (con `https://` y sin barra final) para que el
 sitemap, el `robots.txt` y los links de "Compartir por WhatsApp"/"Copiar
 enlace" apunten a la URL pública real en vez de `localhost`.
+
+## Renombre de "Noticias" a "Actividades"
+
+**1. La asociación pidió cambiar el nombre de la sección "Noticias" a
+"Actividades" en todo el sitio, incluidas las URLs.**
+Se cambió el texto visible (menú, títulos, botones, panel de admin) y las
+rutas: `/noticias` → `/actividades` (con `/proximas`, `/realizadas` y
+`/[slug]`) y `/admin/noticias` → `/admin/actividades` (con `/nueva`,
+`/[id]` y `/[id]/vista-previa`). El prefijo de las imágenes subidas a Vercel
+Blob para esta sección también pasa de `noticias/` a `actividades/`
+(`src/actions/blob.ts`) — no afecta imágenes existentes porque el Blob
+store recién se creó (Fase 6) y todavía no tiene archivos.
+
+**No se renombró nada a nivel de código ni de base de datos**: el modelo
+`Noticia` de Prisma (con su enum `EstadoNoticia`), la tabla, los archivos
+(`src/lib/noticias.ts`, `src/actions/noticias.ts`,
+`FormularioNoticia.tsx`, `TarjetaNoticia.tsx`, `DetalleNoticia.tsx`,
+`FilaNoticiaAdmin.tsx`) y los nombres de funciones/variables siguen
+llamándose "noticia". Esto es deliberado: renombrar el modelo hubiera
+significado una migración de base de datos y tocar decenas de archivos
+sin ningún beneficio visible para la asociación, que es quien pidió el
+cambio — para ella alcanza con que el sitio diga "Actividades" en todos
+lados. Documentado también en `docs/SDD_ACPSIJUPBA.md` (secciones 1, 2.2,
+7.1–7.9, 8.1–8.6, 12, 14) junto a esta misma nota.
+
+**2. Se agregaron redirects permanentes (308) desde las URLs viejas.**
+El sitio ya estaba en producción con `/noticias` y sus subrutas cuando se
+pidió el cambio (deploy de ayer), así que en vez de simplemente romper esos
+links se agregaron redirects en `next.config.ts` (`/noticias` → `/actividades`,
+`/noticias/proximas` → `/actividades/proximas`, `/noticias/realizadas` →
+`/actividades/realizadas`, `/noticias/:slug` → `/actividades/:slug`, y los
+mismos cuatro para `/admin/noticias`). Probado en local: las cuatro rutas
+públicas viejas devuelven 308 a la ruta nueva correspondiente, incluso con
+un slug real ya publicado.
+
+**3. Verificación.** `npm run build` sin errores con las rutas movidas
+(después de borrar `.next/` para sacar los tipos de ruta generados viejos
+que quedaron apuntando a los archivos movidos). Probado en local contra la
+base real: `/actividades` y `/actividades/[slug]` con datos reales
+(incluida una actividad ya publicada), el nav público muestra "Actividades"
+apuntando a `/actividades`, y las cuatro rutas viejas redirigen (308) a las
+nuevas.

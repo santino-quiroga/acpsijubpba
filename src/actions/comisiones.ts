@@ -11,9 +11,9 @@ export type ResultadoComision = { error: string } | undefined;
 
 function revalidarPublico() {
   revalidatePath("/");
-  revalidatePath("/noticias");
-  revalidatePath("/noticias/proximas");
-  revalidatePath("/noticias/realizadas");
+  revalidatePath("/actividades");
+  revalidatePath("/actividades/proximas");
+  revalidatePath("/actividades/realizadas");
 }
 
 function leerDatosFormulario(formData: FormData) {

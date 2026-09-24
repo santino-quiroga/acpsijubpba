@@ -6,6 +6,6 @@ export const NAV_PUBLICO: ItemNav[] = [
   { href: "/historia", label: "Historia" },
   { href: "/objetivos", label: "Objetivos" },
   { href: "/comision-directiva", label: "Nosotros" },
-  { href: "/noticias", label: "Noticias" },
+  { href: "/actividades", label: "Actividades" },
   { href: "/contacto", label: "Contacto" },
 ];

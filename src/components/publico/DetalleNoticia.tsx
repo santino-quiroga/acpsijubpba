@@ -12,7 +12,7 @@ export function DetalleNoticia({
 }: {
   noticia: Noticia & { comision: ComisionTrabajo | null };
 }) {
-  const url = `${SITE_URL}/noticias/${noticia.slug}`;
+  const url = `${SITE_URL}/actividades/${noticia.slug}`;
   const textoWhatsapp = encodeURIComponent(`${noticia.titulo} ${url}`);
 
   // JSON-LD NewsArticle (sección 12 del SDD).
@@ -38,8 +38,8 @@ export function DetalleNoticia({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <Link href="/noticias" className="font-bold text-verde-900 underline">
-        ← Volver a noticias
+      <Link href="/actividades" className="font-bold text-verde-900 underline">
+        ← Volver a actividades
       </Link>
 
       <div className="mt-4 flex flex-wrap items-center gap-3 text-chico text-texto-suave">

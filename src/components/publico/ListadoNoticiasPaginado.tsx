@@ -23,7 +23,7 @@ export async function ListadoNoticiasPaginado({
     db.comisionTrabajo.findMany({ where: { activa: true }, orderBy: { orden: "asc" } }),
   ]);
 
-  const basePath = `/noticias/${tipo}`;
+  const basePath = `/actividades/${tipo}`;
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 md:px-6">
@@ -41,7 +41,7 @@ export async function ListadoNoticiasPaginado({
 
       {noticias.length === 0 ? (
         <p className="mt-10 text-cuerpo text-texto-suave">
-          No hay noticias para mostrar acá todavía.
+          No hay actividades para mostrar acá todavía.
         </p>
       ) : (
         <ul className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">

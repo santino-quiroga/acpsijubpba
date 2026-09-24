@@ -14,10 +14,10 @@ export type ResultadoNoticia = { error: string } | undefined;
 
 async function revalidarPublico(slug?: string) {
   revalidatePath("/");
-  revalidatePath("/noticias");
-  revalidatePath("/noticias/proximas");
-  revalidatePath("/noticias/realizadas");
-  if (slug) revalidatePath(`/noticias/${slug}`);
+  revalidatePath("/actividades");
+  revalidatePath("/actividades/proximas");
+  revalidatePath("/actividades/realizadas");
+  if (slug) revalidatePath(`/actividades/${slug}`);
 }
 
 type AccionGuardado = "borrador" | "publicar";
@@ -52,10 +52,10 @@ async function guardar(
   let existente = null;
   if (id) {
     existente = await db.noticia.findUnique({ where: { id } });
-    if (!existente) return { error: "No se encontró la noticia." };
+    if (!existente) return { error: "No se encontró la actividad." };
   }
 
-  // El slug no cambia al editar una noticia ya publicada (sección 6).
+  // El slug no cambia al editar una actividad ya publicada (sección 6).
   const slug = existente ? existente.slug : await generarSlugUnico(datos.data.titulo);
 
   const datosGuardar = {
@@ -82,7 +82,7 @@ async function guardar(
   }
 
   await revalidarPublico(slug);
-  redirect("/admin/noticias");
+  redirect("/admin/actividades");
 }
 
 /**
@@ -115,5 +115,5 @@ export async function eliminarNoticia(id: string): Promise<void> {
   if (noticia.imagenUrl) await del(noticia.imagenUrl).catch(() => {});
   await db.noticia.delete({ where: { id } });
   await revalidarPublico(noticia.slug);
-  redirect("/admin/noticias");
+  redirect("/admin/actividades");
 }

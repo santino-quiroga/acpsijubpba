@@ -12,7 +12,7 @@ export async function generateMetadata({
   const noticia = await obtenerNoticiaPorSlug(slug);
 
   if (!noticia || noticia.estado !== "PUBLICADA") {
-    return { title: "Noticia no encontrada" };
+    return { title: "Actividad no encontrada" };
   }
 
   return {
@@ -35,7 +35,7 @@ export default async function PaginaDetalleNoticia({
   const noticia = await obtenerNoticiaPorSlug(slug);
 
   // Un borrador responde 404 públicamente (sección 7.7); los admins lo ven
-  // desde /admin/noticias/[id]/vista-previa.
+  // desde /admin/actividades/[id]/vista-previa.
   if (!noticia || noticia.estado !== "PUBLICADA") notFound();
 
   return <DetalleNoticia noticia={noticia} />;

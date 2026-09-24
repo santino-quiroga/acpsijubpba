@@ -17,7 +17,7 @@ export async function obtenerUltimasNoticias(limite = 3) {
 }
 
 /**
- * Vista previa de "Próximas actividades" en /noticias: las próximas por
+ * Vista previa de "Próximas actividades" en /actividades: las próximas por
  * fecha, sin paginar (ver "Ver todas" para la lista completa paginada).
  */
 export async function obtenerProximasActividades(limite = 4) {
@@ -30,7 +30,7 @@ export async function obtenerProximasActividades(limite = 4) {
   });
 }
 
-/** Vista previa de "Actividades realizadas" en /noticias. */
+/** Vista previa de "Actividades realizadas" en /actividades. */
 export async function obtenerActividadesRealizadas(limite = 4) {
   const inicioHoy = obtenerInicioDeHoyArgentina();
   return db.noticia.findMany({
@@ -44,8 +44,8 @@ export async function obtenerActividadesRealizadas(limite = 4) {
 export type TipoListadoNoticias = "proximas" | "realizadas";
 
 /**
- * Lista paginada y filtrable por comisión, para /noticias/proximas y
- * /noticias/realizadas. `comisionId`: la sección 7.6 del SDD describe el
+ * Lista paginada y filtrable por comisión, para /actividades/proximas y
+ * /actividades/realizadas. `comisionId`: la sección 7.6 del SDD describe el
  * filtro como `?comision=slug`, pero `ComisionTrabajo` (sección 6) no tiene
  * un campo `slug` — se usa directamente su `id` como valor del parámetro
  * (ver docs/DECISIONES.md).

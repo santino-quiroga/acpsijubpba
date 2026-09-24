@@ -14,13 +14,13 @@ function normalizarBase(titulo: string): string {
 /**
  * Genera un slug único a partir del título (sección 6, reglas de negocio).
  * Si ya existe, agrega el sufijo -2, -3, etc. `idAIgnorar` se usa al editar
- * una noticia existente para no chocar contra su propio slug.
+ * una actividad existente para no chocar contra su propio slug.
  */
 export async function generarSlugUnico(
   titulo: string,
   idAIgnorar?: string,
 ): Promise<string> {
-  const base = normalizarBase(titulo) || "noticia";
+  const base = normalizarBase(titulo) || "actividad";
   let slug = base;
   let sufijo = 2;
 

@@ -24,8 +24,8 @@ export default async function EscritorioAdmin() {
       </h1>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <BotonLink href="/admin/noticias/nueva" className="justify-center py-6 text-center">
-          Publicar una noticia
+        <BotonLink href="/admin/actividades/nueva" className="justify-center py-6 text-center">
+          Publicar una actividad
         </BotonLink>
         <BotonLink
           href="/admin/comision-directiva"
@@ -47,7 +47,7 @@ export default async function EscritorioAdmin() {
         <h2 className="font-display text-h3 font-bold text-texto">Resumen</h2>
         <dl className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
-            <dt className="text-chico text-texto-suave">Noticias publicadas</dt>
+            <dt className="text-chico text-texto-suave">Actividades publicadas</dt>
             <dd className="font-display text-h2 font-bold text-verde-900">{publicadas}</dd>
           </div>
           <div>

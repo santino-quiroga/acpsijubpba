@@ -23,7 +23,7 @@ export function FilaComision({
 
   const mensajeEliminar =
     cantidadNoticias > 0
-      ? `Se va a eliminar "${comision.nombre}". ${cantidadNoticias} noticia${cantidadNoticias === 1 ? "" : "s"} quedarán sin categoría.`
+      ? `Se va a eliminar "${comision.nombre}". ${cantidadNoticias} actividad${cantidadNoticias === 1 ? "" : "es"} quedarán sin categoría.`
       : `Se va a eliminar "${comision.nombre}" para siempre. Esta acción no se puede deshacer.`;
 
   return (

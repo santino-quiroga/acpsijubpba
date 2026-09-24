@@ -31,9 +31,9 @@ export default async function PaginaNoticiasAdmin({
     <div>
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="font-display text-h1 font-bold text-verde-900">
-          Noticias
+          Actividades
         </h1>
-        <BotonLink href="/admin/noticias/nueva">+ Nueva noticia</BotonLink>
+        <BotonLink href="/admin/actividades/nueva">+ Nueva actividad</BotonLink>
       </div>
 
       <form className="mt-6 flex flex-wrap gap-3" method="get">
@@ -63,7 +63,7 @@ export default async function PaginaNoticiasAdmin({
 
       {noticias.length === 0 ? (
         <p className="mt-8 text-cuerpo text-texto-suave">
-          No hay noticias que coincidan con la búsqueda.
+          No hay actividades que coincidan con la búsqueda.
         </p>
       ) : (
         <ul className="mt-6 flex flex-col gap-4">

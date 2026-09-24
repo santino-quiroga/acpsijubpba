@@ -12,7 +12,7 @@ export default async function PaginaNuevaNoticia() {
   return (
     <div>
       <h1 className="font-display text-h1 font-bold text-verde-900">
-        Nueva noticia
+        Nueva actividad
       </h1>
       <div className="mt-6 max-w-prosa">
         <FormularioNoticia comisiones={comisiones} />

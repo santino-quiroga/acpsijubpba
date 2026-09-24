@@ -34,7 +34,7 @@ const OFFSET_ARGENTINA_MS = 3 * 60 * 60 * 1000;
 /**
  * Medianoche de "hoy" en hora Argentina (UTC-3 fijo, sin horario de verano),
  * como instante UTC. Se usa para separar Próximas actividades / Actividades
- * realizadas en /noticias (una Noticia con `fechaPublicacion` a partir de
+ * realizadas en /actividades (una Noticia con `fechaPublicacion` a partir de
  * este instante todavía no pasó).
  */
 /**

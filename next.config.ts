@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 // CSP básico (sección 9.5): permite recursos propios, las imágenes de
-// noticias en Vercel Blob y los scripts/estilos inline que ya usa la app
+// actividades en Vercel Blob y los scripts/estilos inline que ya usa la app
 // (script anti-FOUC y JSON-LD en layout.tsx, `@font-face` inyectado por
 // next/font). No hay scripts ni recursos de terceros.
 const CSP = [
@@ -22,10 +22,53 @@ const esProduccion = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   images: {
-    // Imágenes de noticias subidas a Vercel Blob (sección 12 del SDD).
+    // Imágenes de actividades subidas a Vercel Blob (sección 12 del SDD).
     remotePatterns: [
       { protocol: "https", hostname: "*.public.blob.vercel-storage.com" },
     ],
+  },
+  async redirects() {
+    // "Noticias" se renombró a "Actividades" (pedido de la asociación, ver
+    // docs/DECISIONES.md). El sitio ya estaba en producción con las URLs
+    // viejas, así que se redirigen en vez de romperlas.
+    return [
+      { source: "/noticias", destination: "/actividades", permanent: true },
+      {
+        source: "/noticias/proximas",
+        destination: "/actividades/proximas",
+        permanent: true,
+      },
+      {
+        source: "/noticias/realizadas",
+        destination: "/actividades/realizadas",
+        permanent: true,
+      },
+      {
+        source: "/noticias/:slug",
+        destination: "/actividades/:slug",
+        permanent: true,
+      },
+      {
+        source: "/admin/noticias",
+        destination: "/admin/actividades",
+        permanent: true,
+      },
+      {
+        source: "/admin/noticias/nueva",
+        destination: "/admin/actividades/nueva",
+        permanent: true,
+      },
+      {
+        source: "/admin/noticias/:id",
+        destination: "/admin/actividades/:id",
+        permanent: true,
+      },
+      {
+        source: "/admin/noticias/:id/vista-previa",
+        destination: "/admin/actividades/:id/vista-previa",
+        permanent: true,
+      },
+    ];
   },
   experimental: {
     // Tope de tamaño para el Server Action de subida de imágenes (sección 9.5).

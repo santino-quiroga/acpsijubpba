@@ -4,7 +4,7 @@ import { TarjetaNoticia } from "@/components/publico/TarjetaNoticia";
 import { BotonLink } from "@/components/ui/Boton";
 
 export const metadata: Metadata = {
-  title: "Noticias",
+  title: "Actividades",
   description: "Próximas actividades y actividades realizadas de ACPSIJUPBA.",
 };
 
@@ -19,12 +19,12 @@ export default async function PaginaNoticias() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-12 md:px-6">
       <h1 className="font-display text-h1 font-bold text-verde-900">
-        Noticias
+        Actividades
       </h1>
 
       {sinNoticias && (
         <p className="mt-6 text-cuerpo text-texto-suave">
-          Todavía no hay noticias publicadas. Volvé a visitarnos pronto.
+          Todavía no hay actividades publicadas. Volvé a visitarnos pronto.
         </p>
       )}
 
@@ -34,7 +34,7 @@ export default async function PaginaNoticias() {
             <h2 className="font-display text-h2 font-bold text-verde-900">
               Próximas actividades
             </h2>
-            <BotonLink href="/noticias/proximas" variante="secundario">
+            <BotonLink href="/actividades/proximas" variante="secundario">
               Ver todas las próximas actividades
             </BotonLink>
           </div>
@@ -52,7 +52,7 @@ export default async function PaginaNoticias() {
             <h2 className="font-display text-h2 font-bold text-verde-900">
               Actividades realizadas
             </h2>
-            <BotonLink href="/noticias/realizadas" variante="secundario">
+            <BotonLink href="/actividades/realizadas" variante="secundario">
               Ver todas las actividades realizadas
             </BotonLink>
           </div>

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 // Menú lateral (sección 8.1), en el mismo orden que la sección 8.
 const ITEMS_MENU = [
   { href: "/admin", label: "Escritorio" },
-  { href: "/admin/noticias", label: "Noticias" },
+  { href: "/admin/actividades", label: "Actividades" },
   { href: "/admin/comision-directiva", label: "Comisión Directiva" },
   { href: "/admin/comisiones", label: "Comisiones de trabajo" },
   { href: "/admin/inicio", label: "Textos de Inicio" },

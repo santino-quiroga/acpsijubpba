@@ -117,7 +117,7 @@ export function FormularioNoticia({
             className="min-h-boton rounded-boton border-2 border-tierra-100 px-4 text-cuerpo focus:border-verde-700"
           />
           <p className="text-chico text-texto-suave">
-            Si la fecha todavía no llegó, la noticia va a aparecer en
+            Si la fecha todavía no llegó, la actividad va a aparecer en
             &ldquo;Próximas actividades&rdquo;; si ya pasó, en
             &ldquo;Actividades realizadas&rdquo;.
           </p>
@@ -149,7 +149,7 @@ export function FormularioNoticia({
       {noticia && (
         <div className="flex flex-wrap items-center gap-3">
           <Link
-            href={`/admin/noticias/${noticia.id}/vista-previa`}
+            href={`/admin/actividades/${noticia.id}/vista-previa`}
             className="min-h-boton inline-flex items-center rounded-boton border-2 border-verde-900 px-4 font-bold text-verde-900"
           >
             Vista previa

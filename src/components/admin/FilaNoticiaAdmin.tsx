@@ -36,13 +36,13 @@ export function FilaNoticiaAdmin({
 
       <div className="flex flex-wrap gap-2">
         <Link
-          href={`/admin/noticias/${id}`}
+          href={`/admin/actividades/${id}`}
           className="min-h-boton rounded-boton border-2 border-verde-900 px-4 font-bold text-verde-900 flex items-center"
         >
           Editar
         </Link>
         <Link
-          href={publicada ? `/noticias/${slug}` : `/admin/noticias/${id}/vista-previa`}
+          href={publicada ? `/actividades/${slug}` : `/admin/actividades/${id}/vista-previa`}
           target="_blank"
           rel="noopener noreferrer"
           className="min-h-boton rounded-boton border-2 border-tierra-100 px-4 font-bold text-texto flex items-center"

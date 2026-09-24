@@ -26,7 +26,7 @@ export default async function PaginaVistaPreviaNoticia({
           Vista previa — no publicada
         </p>
         <Link
-          href={`/admin/noticias/${noticia.id}`}
+          href={`/admin/actividades/${noticia.id}`}
           className="font-bold text-verde-900 underline"
         >
           Volver a editar

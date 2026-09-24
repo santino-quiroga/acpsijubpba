@@ -19,8 +19,8 @@ export default function NoEncontrado() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-4">
           <BotonLink href="/">Ir a Inicio</BotonLink>
-          <BotonLink href="/noticias" variante="secundario">
-            Ver Noticias
+          <BotonLink href="/actividades" variante="secundario">
+            Ver Actividades
           </BotonLink>
         </div>
       </main>

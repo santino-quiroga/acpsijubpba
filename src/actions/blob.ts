@@ -26,7 +26,7 @@ export async function subirImagen(
   }
 
   const extension = archivo.type.split("/")[1];
-  const nombreAleatorio = `noticias/${randomUUID()}.${extension}`;
+  const nombreAleatorio = `actividades/${randomUUID()}.${extension}`;
 
   const resultado = await put(nombreAleatorio, archivo, {
     access: "public",
