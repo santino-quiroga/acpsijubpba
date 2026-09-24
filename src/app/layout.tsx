@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Atkinson_Hyperlegible, Lora } from "next/font/google";
+import { obtenerUrlSitio } from "@/lib/site-url";
 import "./globals.css";
 
 const atkinson = Atkinson_Hyperlegible({
@@ -14,7 +15,7 @@ const lora = Lora({
   weight: ["600", "700"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = obtenerUrlSitio();
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

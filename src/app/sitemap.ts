@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
 import { obtenerSlugsNoticiasPublicadas } from "@/lib/noticias";
+import { obtenerUrlSitio } from "@/lib/site-url";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = obtenerUrlSitio();
 
 const PAGINAS_ESTATICAS = [
   "",

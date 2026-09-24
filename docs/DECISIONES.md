@@ -578,3 +578,25 @@ sesión sigue siendo inválida en la base en cada request siguiente igual, y
 la cookie se termina reemplazando sola en el próximo login exitoso. El
 borrado explícito en `cerrarSesion()` (que sí es una Server Action) no se
 tocó. Probado: login completo funcionando de nuevo después del fix.
+
+**3. Deploy a Vercel rompía el build: `new URL(NEXT_PUBLIC_SITE_URL)` en
+`metadataBase` (layout.tsx) tira una excepción si esa variable no es una
+URL absoluta válida.**
+Los dos primeros deploys a Vercel fallaron con `TypeError: Invalid URL` en
+`layout.tsx:20`, adentro de `Failed to collect configuration for
+/_not-found`. Como el dominio real todavía está `[PENDIENTE]` (sección 13),
+`NEXT_PUBLIC_SITE_URL` en Vercel quedó vacía o sin el prefijo `https://` —
+cualquiera de los dos casos hace que `new URL(...)` explote, y como
+`metadataBase` se evalúa a nivel de módulo del layout raíz, tumba el build
+entero (no solo esa página). Se centralizó la lectura de esta variable en
+`obtenerUrlSitio()` (`src/lib/site-url.ts`), usada ahora en `layout.tsx`,
+`sitemap.ts`, `robots.ts` y `DetalleNoticia.tsx`: valida con `new URL()`
+adentro de un `try/catch` y cae al valor por defecto
+(`http://localhost:3000`) ante cualquier valor vacío o inválido, en vez de
+romper el build. Se reprodujo el error exacto en local
+(`NEXT_PUBLIC_SITE_URL="" npm run build` y también sin el `https://`) y se
+confirmó que con el fix el build termina bien en ambos casos. Sigue
+haciendo falta que, una vez resuelto el dominio real, se cargue
+correctamente en Vercel (con `https://` y sin barra final) para que el
+sitemap, el `robots.txt` y los links de "Compartir por WhatsApp"/"Copiar
+enlace" apunten a la URL pública real en vez de `localhost`.

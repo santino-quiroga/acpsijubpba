@@ -2,9 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import type { ComisionTrabajo, Noticia } from "@prisma/client";
 import { formatearFecha } from "@/lib/formato";
+import { obtenerUrlSitio } from "@/lib/site-url";
 import { BotonCopiarEnlace } from "@/components/publico/BotonCopiarEnlace";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = obtenerUrlSitio();
 
 export function DetalleNoticia({
   noticia,
